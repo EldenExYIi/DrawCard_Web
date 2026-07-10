@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Draw Level 002 · V2 牌链实验关卡</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg:#eceee9; --paper:#fff; --paper2:#f7f8f4; --ink:#17211d; --muted:#68736e;
+      --line:#d4dbd6; --green:#287d65; --green2:#1e6652; --greenSoft:#e5f3ec;
+      --red:#bd4850; --redSoft:#fae9eb; --gold:#b77a18; --goldSoft:#fff3d7;
+      --blue:#3978a6; --blueSoft:#e9f2f8; --purple:#74559b; --purpleSoft:#f1ebf7;
+      --shadow:0 14px 38px rgba(24,42,34,.09);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink)}
+    button{font:inherit} button:focus-visible,[tabindex]:focus-visible{outline:3px solid rgba(40,125,101,.25);outline-offset:2px}
+    .screen{display:none;min-height:100vh}.screen.active{display:block}.hidden{display:none!important}
+    .topbar{position:sticky;top:0;z-index:40;min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:8px clamp(12px,2vw,24px);border-bottom:1px solid var(--line);background:rgba(255,255,255,.95);backdrop-filter:blur(10px)}
+    .brand{display:flex;align-items:baseline;gap:10px;min-width:0}.brand strong{font-size:19px;white-space:nowrap}.brand span{font-size:12px;color:var(--muted);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .stats{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}.stat{min-height:34px;display:inline-flex;align-items:center;gap:5px;padding:0 10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--muted);font-size:12px;font-weight:850;white-space:nowrap}.stat b{color:var(--ink);font-size:14px}.stat.gold{background:var(--goldSoft);border-color:#e7ca89;color:#815812}.stat.loss{background:var(--redSoft);border-color:#edbdc1;color:#96343b}
+    .primary,.secondary,.ghost,.danger{min-height:40px;padding:0 15px;border-radius:7px;border:1px solid transparent;font-weight:900;cursor:pointer;transition:.15s transform,.15s filter}.primary{background:var(--green);border-color:var(--green);color:#fff}.secondary{background:#fff;border-color:#c7d1cb;color:var(--ink)}.ghost{background:transparent;border-color:var(--line);color:var(--muted)}.danger{background:var(--red);border-color:var(--red);color:#fff}.primary:hover,.secondary:hover,.ghost:hover,.danger:hover{transform:translateY(-1px);filter:brightness(.98)}button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
+    .start{min-height:100vh;background:#263b34;color:#fff;position:relative;overflow:hidden}.start:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 78% 22%,rgba(129,186,159,.28),transparent 32%),linear-gradient(145deg,transparent 50%,rgba(0,0,0,.18));pointer-events:none}.start-inner{position:relative;width:min(1180px,calc(100vw - 32px));margin:auto;padding:54px 0 70px}.backlink{color:#bde8d6;text-decoration:none;font-size:13px;font-weight:900}.kicker{margin:48px 0 12px;font-size:13px;font-weight:900;color:#bde8d6}.start h1{margin:0;max-width:880px;font-size:clamp(44px,8vw,94px);line-height:.96}.lead{max-width:720px;margin:22px 0 30px;color:rgba(255,255,255,.82);font-size:17px;line-height:1.75}.system-grid{display:grid;grid-template-columns:repeat(5,minmax(155px,1fr));gap:10px;margin-top:34px}.system-card{min-height:205px;padding:18px;border:1px solid rgba(255,255,255,.17);border-radius:9px;background:rgba(255,255,255,.07);color:#fff;text-align:left;cursor:pointer}.system-card:hover,.system-card.selected{border-color:#bde8d6;background:rgba(189,232,214,.15)}.system-card.selected{box-shadow:0 0 0 2px #bde8d6 inset}.system-icon{font-size:28px}.system-card h2{margin:13px 0 8px;font-size:20px}.system-card p{margin:0;color:rgba(255,255,255,.72);font-size:12px;line-height:1.6}.curve{display:inline-block;margin-top:15px;padding:5px 8px;border-radius:99px;background:rgba(0,0,0,.16);font-size:11px;font-weight:900}.start-actions{display:flex;align-items:center;gap:12px;margin-top:24px}.start-note{font-size:12px;color:rgba(255,255,255,.62)}
+    .shell{width:min(1480px,calc(100vw - 24px));margin:0 auto;padding:18px 0 42px}.phase-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:14px}.phase-head h1{margin:0 0 5px;font-size:clamp(26px,4vw,42px)}.phase-head p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.phase-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .shop-layout{display:grid;grid-template-columns:minmax(0,1.03fr) minmax(480px,.97fr);gap:14px}.panel{border:1px solid var(--line);border-radius:9px;background:var(--paper);box-shadow:var(--shadow);overflow:hidden}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid var(--line)}.panel-head h2{margin:0;font-size:17px}.panel-head p{margin:3px 0 0;color:var(--muted);font-size:11px}.odds{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.odd{padding:4px 6px;border-radius:4px;background:var(--paper2);font-size:10px;font-weight:900}.odd.rare{background:var(--blueSoft);color:var(--blue)}.odd.epic{background:var(--purpleSoft);color:var(--purple)}.odd.legend{background:var(--goldSoft);color:var(--gold)}
+    .offers{padding:10px;display:grid;grid-template-columns:repeat(5,minmax(115px,1fr));gap:8px}.offer{min-height:178px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line);border-radius:8px;background:#fff}.offer.sold{background:#f0f2ee;box-shadow:none}.offer h3{margin:8px 0 5px;font-size:15px;line-height:1.25}.offer p{margin:0;color:var(--muted);font-size:11px;line-height:1.48}.offer .meta{margin-top:7px;font-size:10px;color:var(--green2);font-weight:900}.offer button{width:100%;min-height:32px;padding:0 7px;font-size:11px}.offer-top{display:flex;justify-content:space-between;gap:5px}.rarity,.kind{padding:3px 5px;border-radius:4px;background:#eef1ee;color:var(--muted);font-size:9px;font-weight:900}.rarity.稀有{background:var(--blueSoft);color:var(--blue)}.rarity.史诗{background:var(--purpleSoft);color:var(--purple)}.rarity.传说{background:var(--goldSoft);color:var(--gold)}.price{font-size:11px;font-weight:1000;color:var(--gold)}.shop-section-title{padding:9px 12px 0;color:var(--muted);font-size:11px;font-weight:950}.strategy-offers,.weapon-offers{grid-template-columns:repeat(2,minmax(0,1fr))}.strategy-offers .offer,.weapon-offers .offer{min-height:138px}.economy-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:10px;border-top:1px solid var(--line);background:var(--paper2)}.economy-cell{padding:8px;border-radius:6px;background:#fff;font-size:10px;color:var(--muted);line-height:1.45}.economy-cell b{display:block;color:var(--ink);font-size:13px}
+    .builder{min-width:0}.builder-body{padding:10px;background:var(--paper2)}.inventory-block{border:1px solid var(--line);border-radius:8px;background:#fff;margin-bottom:10px;overflow:hidden}.inventory-head{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid var(--line);font-size:12px;font-weight:900}.inventory-head span{color:var(--muted);font-size:10px}.inventory-list{min-height:70px;max-height:170px;overflow:auto;display:flex;align-content:flex-start;flex-wrap:wrap;gap:6px;padding:8px}.inventory-list.drag-over{background:var(--greenSoft)}.drag-card{width:112px;min-height:62px;padding:7px;border:1px solid var(--line);border-radius:7px;background:#fff;box-shadow:0 4px 12px rgba(24,42,34,.07);cursor:grab;user-select:none}.drag-card:active{cursor:grabbing}.drag-card.strategy{border-color:#a9cbbd;background:#eef8f3}.drag-card h4{margin:0 0 4px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.drag-card p{margin:0;color:var(--muted);font-size:9px;line-height:1.35}.drag-card .tiny{margin-top:4px;color:var(--green2);font-weight:900;font-size:8px}.weapon-chip{width:140px;min-height:54px;padding:7px;border:1px solid #e1c684;border-radius:7px;background:#fff8e7;cursor:grab;user-select:none}.weapon-chip h4{margin:0 0 4px;font-size:11px}.weapon-chip p{margin:0;color:#80611f;font-size:9px;line-height:1.35}
+    .chains-head{display:flex;align-items:center;justify-content:space-between;margin:12px 1px 7px}.chains-head h3{margin:0;font-size:13px}.chains-head span{font-size:10px;color:var(--muted)}.chain-plans{display:grid;gap:8px}.chain-plan{border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden}.chain-plan.drag-over{box-shadow:0 0 0 3px rgba(40,125,101,.18);border-color:var(--green)}.chain-plan-head{display:grid;grid-template-columns:31px minmax(0,1fr);gap:7px;align-items:center;padding:7px;border-bottom:1px solid var(--line);background:#fafbf8}.chain-handle{height:31px;border:1px dashed #aeb8b2;border-radius:5px;background:#fff;color:var(--muted);cursor:grab;font-weight:1000}.weapon-socket{min-height:38px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 8px;border:1px dashed #d1ba78;border-radius:6px;background:#fffaf0;color:#795e25;font-size:10px}.weapon-socket.empty{color:#9b8a62}.weapon-socket.drag-over,.card-slot.drag-over{border-color:var(--green);background:var(--greenSoft)}.plan-label{font-weight:1000}.chain-slots{display:flex;gap:6px;overflow-x:auto;padding:8px}.card-slot{flex:0 0 112px;min-height:72px;display:grid;place-items:center;border:1px dashed #b8c2bc;border-radius:7px;background:#f8f9f6;color:#98a19c;font-size:9px;text-align:center;padding:4px}.card-slot .drag-card{width:100%;min-height:62px}.future-note{padding:0 9px 8px;color:var(--muted);font-size:9px}.builder-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-top:1px solid var(--line);background:#fff}.build-status{font-size:10px;color:var(--muted);line-height:1.45}.build-status b.ok{color:var(--green2)}.build-status b.bad{color:var(--red)}
+    .data-lab{margin-top:14px}.data-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;padding:10px}.data-chip{padding:9px;border-radius:7px;background:var(--paper2);font-size:10px;color:var(--muted)}.data-chip b{display:block;color:var(--ink);font-size:14px}.data-table-wrap{overflow:auto;max-height:260px;border-top:1px solid var(--line)}table{width:100%;border-collapse:collapse;font-size:10px}th,td{padding:7px 9px;border-bottom:1px solid #e6eae7;text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#f7f8f5;color:var(--muted)}.legal{color:var(--green2);font-weight:900}
+    .battle{min-height:100vh}.battle-shell{width:min(1500px,calc(100vw - 20px));margin:auto;padding:12px 0 30px}.battle-grid{display:grid;grid-template-columns:220px minmax(520px,1fr) 220px;gap:10px}.combatant{border:1px solid var(--line);border-radius:9px;background:#fff;box-shadow:var(--shadow);overflow:hidden}.combatant-head{padding:14px;border-bottom:1px solid var(--line)}.combatant-head h2{margin:0 0 5px;font-size:16px}.combatant-head p{margin:0;color:var(--muted);font-size:10px}.hpbar{height:12px;margin:10px 0 5px;border-radius:99px;background:#eadfe0;overflow:hidden}.hpbar>div{height:100%;background:var(--red);transition:width .15s}.resource-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:10px}.resource{padding:7px;border-radius:5px;background:var(--paper2);font-size:9px;color:var(--muted)}.resource b{display:block;color:var(--ink);font-size:12px}.battle-center{border:1px solid var(--line);border-radius:9px;background:#fff;box-shadow:var(--shadow);overflow:hidden}.battle-center-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line)}.battle-center-head h2{margin:0;font-size:16px}.speed-row{display:flex;gap:4px}.speed-row button{min-height:28px;padding:0 8px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:10px;font-weight:900;cursor:pointer}.speed-row button.active{background:var(--green);color:#fff;border-color:var(--green)}.battle-chain-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;background:var(--paper2);min-height:360px}.battle-side{min-width:0}.battle-side h3{margin:0 0 7px;font-size:11px}.live-chain{padding:7px;border:1px solid var(--line);border-radius:7px;background:#fff;margin-bottom:6px}.live-chain.new{border-color:var(--green)}.live-chain-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:9px;font-weight:900}.live-slots{display:flex;gap:4px;overflow:auto}.live-card{flex:0 0 77px;min-height:50px;padding:5px;border:1px solid var(--line);border-radius:5px;background:#f8f9f6;font-size:8px}.live-card.strategy{background:#edf7f2;border-color:#afd0c2}.live-card.active{border:2px solid var(--gold);box-shadow:0 0 0 3px rgba(183,122,24,.13)}.live-card b{display:block;margin-bottom:3px;font-size:9px}.pending-line{padding:7px;border-radius:6px;background:#fff;font-size:9px;color:var(--muted)}.battle-log{height:230px;overflow:auto;padding:10px 13px;border-top:1px solid var(--line);background:#fafbf9;font-size:10px;line-height:1.55}.battle-log p{margin:0 0 4px}.time{display:inline-block;width:48px;color:var(--muted);font-variant-numeric:tabular-nums}.battle-overlay{position:fixed;inset:0;z-index:80;display:none;place-items:center;padding:18px;background:rgba(18,27,23,.67)}.battle-overlay.open{display:grid}.result-card{width:min(620px,100%);padding:24px;border-radius:10px;background:#fff;box-shadow:0 28px 80px rgba(0,0,0,.25)}.result-card h2{margin:0 0 9px;font-size:30px}.result-card p{color:var(--muted);line-height:1.65}.result-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:18px 0}.result-stat{padding:10px;border-radius:7px;background:var(--paper2);font-size:10px;color:var(--muted)}.result-stat b{display:block;color:var(--ink);font-size:17px}.result-actions{display:flex;justify-content:flex-end;gap:8px}
+    .toast{position:fixed;left:50%;bottom:22px;z-index:120;transform:translate(-50%,18px);padding:10px 14px;border-radius:7px;background:#1e2d27;color:#fff;font-size:12px;font-weight:850;opacity:0;pointer-events:none;transition:.18s}.toast.show{opacity:1;transform:translate(-50%,0)}.drag-ghost{position:fixed;z-index:200;pointer-events:none;width:120px;opacity:.88;transform:rotate(2deg);box-shadow:0 16px 35px rgba(0,0,0,.2)}
+    .keyword-term{color:#176b55;border-bottom:1px dotted currentColor;cursor:help;font-weight:850}.keyword-term:focus{outline:2px solid rgba(40,125,101,.3);outline-offset:2px;border-radius:2px}.keyword-tooltip{position:fixed;z-index:260;display:none;width:min(330px,calc(100vw - 24px));padding:11px 12px;border:1px solid #a9c8bb;border-radius:8px;background:#f8fffb;color:var(--ink);box-shadow:0 16px 42px rgba(17,45,35,.2);pointer-events:none}.keyword-tooltip.open{display:block}.keyword-tooltip b{display:block;margin-bottom:5px;color:var(--green2);font-size:12px}.keyword-tooltip p{margin:0;font-size:11px;line-height:1.6;color:#45534d}
+    @media(max-width:1180px){.shop-layout{grid-template-columns:1fr}.system-grid{grid-template-columns:repeat(3,1fr)}.battle-grid{grid-template-columns:170px minmax(460px,1fr) 170px}}
+    @media(max-width:760px){.topbar{align-items:flex-start}.brand span{display:none}.stats{gap:4px}.stat{padding:0 7px}.system-grid{grid-template-columns:1fr}.system-card{min-height:0}.offers{grid-template-columns:repeat(2,minmax(0,1fr))}.strategy-offers,.weapon-offers{grid-template-columns:1fr}.shop-layout{display:block}.builder{margin-top:12px}.battle-grid{display:flex;flex-direction:column}.battle-center{order:1}.combatant{order:2}.battle-chain-wrap{grid-template-columns:1fr}.result-stats,.data-summary,.economy-strip{grid-template-columns:repeat(2,1fr)}.phase-head{display:block}.phase-actions{margin-top:10px;justify-content:flex-start}}
+  </style>
+</head>
+<body>
+  <section id="startScreen" class="screen start active">
+    <div class="start-inner">
+      <a class="backlink" href="../index.html">‹ 返回关卡版本库</a>
+      <p class="kicker">LEVEL 002 · V2 牌链实验关卡</p>
+      <h1>先构筑首链，<br>再让体系自己运转。</h1>
+      <p class="lead">这是完整的 20 轮关卡实验：低资源起步、逐轮解锁稀有度，用拖拽安排链序、武器与卡位。策略牌不会购买后直接生效，它必须先进入牌链，再在循环到自身时执行抽牌、筛选与弃牌。</p>
+      <div id="systemGrid" class="system-grid"></div>
+      <div class="start-actions">
+        <button id="startBtn" class="primary" disabled>选择一套起手体系</button>
+        <span class="start-note">起手包仅保证首链可运行，不代表体系已经成型。</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="shopScreen" class="screen">
+    <header class="topbar">
+      <div class="brand"><strong>Level 002</strong><span id="shopPhase">第 1 轮 · 补给与编排</span></div>
+      <div class="stats">
+        <span class="stat gold">金币 <b id="goldText">0c</b></span>
+        <span class="stat">胜场 <b id="winsText">0</b></span>
+        <span class="stat loss">失败 <b id="lossesText">0/3</b></span>
+        <span class="stat">轮次 <b id="roundText">1/20</b></span>
+      </div>
+    </header>
+    <div class="shell">
+      <div class="phase-head">
+        <div><h1 id="shopTitle">第 1 轮补给</h1><p id="shopSubtitle">普通 82% · 稀有 18% · 史诗 0% · 传说 0%。</p></div>
+        <div class="phase-actions">
+          <button id="refreshBtn" class="secondary">刷新商店 · 2c</button>
+          <button id="dataToggleBtn" class="ghost">查看本轮 10 组数据</button>
+          <button id="battleBtn" class="primary" disabled>首链未完成</button>
+        </div>
+      </div>
+      <div class="shop-layout">
+        <div class="panel">
+          <div class="panel-head"><div><h2>商店</h2><p>商品售出后本轮不会补位；刷新会重新生成全部栏位。</p></div><div id="rarityOdds" class="odds"></div></div>
+          <div class="shop-section-title">普通行动牌 · 5 个栏位</div><div id="actionOffers" class="offers"></div>
+          <div class="shop-section-title">策略牌 · 必须封装进链才会执行</div><div id="strategyOffers" class="offers strategy-offers"></div>
+          <div class="shop-section-title">武器 · 决定链容量与循环末尾效果</div><div id="weaponOffers" class="offers weapon-offers"></div>
+          <div id="economyStrip" class="economy-strip"></div>
+        </div>
+        <div class="panel builder">
+          <div class="panel-head"><div><h2>战前拖拽编排台</h2><p>首链可放全部卡；后续链战前只能预放策略牌。拖动「≡」可调整整条链顺序。</p></div></div>
+          <div class="builder-body">
+            <div class="inventory-block"><div class="inventory-head">未放置卡牌 <span>拖到卡槽；拖回这里即可移出</span></div><div id="cardInventory" class="inventory-list" data-drop-zone="card-inventory"></div></div>
+            <div class="inventory-block"><div class="inventory-head">未放置武器 <span>拖到链头；武器容量决定卡槽数量</span></div><div id="weaponInventory" class="inventory-list" data-drop-zone="weapon-inventory"></div></div>
+            <div class="chains-head"><h3>牌链蓝图</h3><span>最多预设 5 条链</span></div>
+            <div id="chainPlans" class="chain-plans"></div>
+          </div>
+          <div class="builder-footer"><div id="buildStatus" class="build-status"></div><button id="autoArrangeBtn" class="ghost">自动整理起手包</button></div>
+        </div>
+      </div>
+      <div id="dataLab" class="panel data-lab hidden">
+        <div class="panel-head"><div><h2>本轮对战数据实验室</h2><p>每轮固定 10 组、五体系各两组；所有购买均来自对应轮次真实商店生成与可用金币。</p></div></div>
+        <div id="dataSummary" class="data-summary"></div><div class="data-table-wrap"><table><thead><tr><th>编号</th><th>体系</th><th>DPS</th><th>总收入</th><th>已消费</th><th>购买数</th><th>链数</th><th>合法性</th></tr></thead><tbody id="dataRows"></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="battleScreen" class="screen battle">
+    <header class="topbar">
+      <div class="brand"><strong id="battleTitle">第 1 轮战斗</strong><span id="matchText">同轮 DPS 邻近匹配</span></div>
+      <div class="stats"><span class="stat">时间 <b id="battleTime">0.0s</b></span><span class="stat">玩家 DPS <b id="playerDps">0</b></span><span class="stat">对手 DPS <b id="enemyDps">0</b></span></div>
+    </header>
+    <div class="battle-shell"><div class="battle-grid">
+      <aside id="playerPanel" class="combatant"></aside>
+      <main class="battle-center">
+        <div class="battle-center-head"><h2 id="battleState">牌链正在循环</h2><div class="speed-row"><button data-speed=".5">0.5x</button><button class="active" data-speed="1">1x</button><button data-speed="2">2x</button><button data-speed="4">4x</button></div></div>
+        <div class="battle-chain-wrap"><div class="battle-side"><h3>玩家牌链</h3><div id="playerChains"></div></div><div class="battle-side"><h3>对手牌链</h3><div id="enemyChains"></div></div></div>
+        <div id="battleLog" class="battle-log"></div>
+      </main>
+      <aside id="enemyPanel" class="combatant"></aside>
+    </div></div>
+  </section>
+
+  <div id="resultOverlay" class="battle-overlay"><div class="result-card"><h2 id="resultTitle">战斗胜利</h2><p id="resultText"></p><div id="resultStats" class="result-stats"></div><div class="result-actions"><button id="replayBtn" class="secondary">同种子回放</button><button id="continueBtn" class="primary">进入下一轮</button></div></div></div>
+  <div id="toast" class="toast"></div>
+  <div id="keywordTooltip" class="keyword-tooltip" role="tooltip" aria-live="polite"><b id="keywordTooltipTitle"></b><p id="keywordTooltipText"></p></div>
+  <script>
+  "use strict";
+  const ARCHETYPES = [
+    {id:"combo",name:"连击节奏",icon:"⚡",curve:"伤害系数 R1 ×1.148 · R10 ×1.04 · R20 ×0.92",description:"疾刺每次获得 1 层连段；连段击每消费 1 层追加 1.5 点基础伤害；收束斩每层连段追加 1.4 点基础伤害。"},
+    {id:"charge",name:"蓄力重击",icon:"💥",curve:"伤害系数 R1 ×1.43 · R10 ×1.06 · R20 ×1.17",description:"蓄势斩每层蓄力使本次伤害增加 15%；过载打击每层增加 22%；专注穿刺每层增加 10% 并保留向下取整后的 50% 蓄力。"},
+    {id:"guard",name:"格挡反击",icon:"🛡️",curve:"伤害系数 R1 ×2.13 · R10 ×1.61 · R20 ×1.44",description:"1 点格挡抵扣 1 点伤害；盾反读取指定上限内的格挡，扣除读取值的 35%，并追加读取值 70% 的基础伤害。"},
+    {id:"forge",name:"锻造武器",icon:"🔨",curve:"伤害系数 R1 ×0.90 · R10 ×1.075 · R20 ×1.27",description:"锻锋斩每层当前武器锻造追加 0.7 点基础伤害；熔火挥击每层全武器锻造追加 0.45 点基础伤害。"},
+    {id:"bleed",name:"血契流血",icon:"🩸",curve:"伤害系数 R1 ×1.22 · R10 ×1.13 · R20 ×1.03",description:"流血每秒造成当前层数 48% 的生命伤害并减少 1 层；汲血回复实际生命伤害的 35%；每层血怒使攻击伤害增加 3.5%。"}
+  ];
+  const ARCH = Object.fromEntries(ARCHETYPES.map(item=>[item.id,item]));
+  const RARITY_TIER = ["普通","普通","稀有","史诗","传说"];
+  const RARITY_ORDER = {"普通":0,"稀有":1,"史诗":2,"传说":3};
+  const PRICE = {
+    action:{"普通":3,"稀有":5,"史诗":8,"传说":12},
+    strategy:{"普通":5,"稀有":7,"史诗":10,"传说":14},
+    weapon:{"普通":6,"稀有":9,"史诗":13,"传说":17}
+  };
+  const TIER_PREFIX = ["初式","熟练","精研","宗师","神话"];
+  const ACTION_BLUEPRINTS = {
+    combo:[
+      ["疾刺","quick",.55,["attack","fast"],2.5],["踏拍","combo_gain",.8,["setup","combo"],1],
+      ["连段击","combo_spend",1.1,["attack","combo"],4],["骤雨","multihit",1.25,["attack","fast"],1.5],
+      ["破绽标记","expose",.9,["setup","mark"],1],["收束斩","combo_finisher",1.65,["attack","finisher"],7],
+      ["攻守节拍","tempo",1,["attack","defense"],3],["残响","echo",1.25,["attack","utility"],2]
+    ],
+    charge:[
+      ["凝神","charge_gain",.9,["setup","charge"],1],["蓄势斩","charge_hit",1.6,["attack","charge"],7],
+      ["余势","charge_keep",1,["setup","charge"],1],["聚能","charge_double",1.35,["setup","charge"],1],
+      ["过载打击","overcharge",2,["attack","finisher"],11],["蓄能护体","charge_block",1.1,["defense","charge"],4],
+      ["力能转化","charge_convert",1.2,["setup","utility"],1],["专注穿刺","focus_hit",1.25,["attack","charge"],6]
+    ],
+    guard:[
+      ["架盾","block",.9,["defense","block"],5],["盾反","counter",1.3,["attack","defense","counter"],4],
+      ["荆棘姿态","thorns",1.1,["defense","setup"],1],["守中带攻","block_hit",1.2,["attack","defense"],3],
+      ["固守","fortify",1.4,["defense","block"],7],["结阵","brace",1.2,["defense","setup"],1],
+      ["盾牌猛击","shield_bash",1.55,["attack","finisher","block"],5],["精准招架","parry",.8,["defense","fast"],1]
+    ],
+    forge:[
+      ["打磨","forge",.75,["setup","forge"],1],["锻锋斩","forge_hit",1.35,["attack","forge"],5],
+      ["强化机括","weapon_power",1.1,["setup","forge"],1],["淬火","temper",1.25,["setup","forge"],1],
+      ["修补护甲","repair",1.1,["defense","forge"],4],["熔火挥击","molten",1.7,["attack","finisher","forge"],8],
+      ["开刃","sharpen",.9,["setup","forge"],1],["大师工艺","masterwork",1.8,["attack","forge"],6]
+    ],
+    bleed:[
+      ["割裂","bleed",.85,["attack","bleed"],2],["血爆","rupture",1.4,["attack","finisher","bleed"],5],
+      ["献血","sacrifice",.8,["setup","blood"],2],["汲血","lifesteal",1.25,["attack","sustain"],4],
+      ["狂热","frenzy",1,["setup","blood"],1],["血盾","blood_block",1.1,["defense","blood"],5],
+      ["处刑","execute",1.75,["attack","finisher"],8],["输血转化","transfusion",1.3,["sustain","utility"],1]
+    ]
+  };
+
+  function actionEffect(op,value,tier){
+    const v = round1(value + tier * Math.max(.5,value*.22));
+    const n = tier + 1;
+    return ({
+      quick:`造成 ${v} 点基础伤害，连段 +1。`,combo_gain:`获得 ${n} 层连段。`,combo_spend:`造成 ${v} 点基础伤害；读取并扣除至多 ${n+1} 层连段，每层追加 1.5 点基础伤害。`,
+      multihit:`连续攻击 ${2+Math.floor(tier/2)} 次，每次造成 ${v} 点基础伤害。`,expose:`施加 ${n} 层破绽；每层使伤害增加 3.5%，每次受击后减少 0.15 层。`,combo_finisher:`造成 ${v} 点基础伤害；扣除全部连段，每层追加 1.4 点基础伤害。`,
+      tempo:`造成 ${v} 点基础伤害并获得 ${v} 点格挡。`,echo:`造成 ${v} 点基础伤害；若上一张牌具有“攻击牌”标签，再造成 ${round1(v*.7)} 点基础伤害。`,
+      charge_gain:`获得 ${n} 层蓄力。`,charge_hit:`造成 ${v} 点基础伤害；每层蓄力使本次伤害增加 15%，随后清空蓄力。`,charge_keep:`获得 ${n} 层蓄力；下一次会清空蓄力的攻击改为保留向下取整后的 50%。`,
+      charge_double:`获得 ${n} + 向下取整（当前蓄力 ×25%）层蓄力。`,overcharge:`造成 ${v} 点基础伤害；每层蓄力使本次伤害增加 22%，随后清空蓄力。`,charge_block:`获得 ${v} 点格挡与 ${n} 层蓄力。`,
+      charge_convert:`扣除至多 ${n+1} 点格挡；每扣除 1 点格挡获得 2 层蓄力。`,focus_hit:`造成 ${v} 点基础伤害；每层蓄力使本次伤害增加 10%，随后保留向下取整后的 50% 蓄力。`,
+      block:`获得 ${v} 点格挡。`,counter:`造成 ${v} 点基础伤害；读取至多 ${v+n} 点格挡，扣除读取值的 35%，并追加读取值 70% 的基础伤害。`,thorns:`获得 ${n} 层荆棘。`,
+      block_hit:`造成 ${v} 点基础伤害并获得 ${v} 点格挡。`,fortify:`获得 ${v} 点格挡；后续受到的伤害降低 ${Math.round((.12+n*.02)*100)}%，同类效果取最高值。`,brace:`获得 min（当前格挡，${v+n}）点格挡。`,
+      shield_bash:`造成 ${v} + 当前格挡 ×22% 点基础伤害。`,parry:`获得 ${v} 点格挡与 ${round1(v*.65)} 点招架值；招架值按 1:1 抵扣后续伤害直至耗尽。`,
+      forge:`当前武器获得 ${n} 层锻造。`,forge_hit:`造成 ${v} + 当前武器锻造 ×0.7 点基础伤害。`,weapon_power:`当前武器威力 +${n}；每点威力使该武器效果的伤害增加 8%。`,
+      temper:`所有已封装武器获得 ${Math.max(1,Math.ceil(n/2))} 层锻造。`,repair:`获得 ${v} + 向下取整（全武器锻造总层数 ÷3）点格挡。`,molten:`造成 ${v} + 全武器锻造总层数 ×0.45 点基础伤害。`,
+      sharpen:`下一次当前武器效果的伤害增加 ${10+n*5}%。`,masterwork:`造成 ${v} + 全武器锻造总层数 ×0.25 点基础伤害，并立即触发锻造层数最高的武器效果 1 次。`,
+      bleed:`施加 ${v} 层流血。`,rupture:`扣除目标当前流血的 32%，造成 ${v} + 被扣除流血层数点基础伤害。`,sacrifice:`自身失去 ${n+1} 点生命，获得 ${n+1} 层血怒。`,
+      lifesteal:`造成 ${v} 点基础伤害，回复实际生命伤害的 35%。`,frenzy:`获得 ${n} 层血怒；每层使攻击伤害增加 3.5%，每次攻击后减少 0.2 层。`,blood_block:`获得 ${v} 点格挡；若当前生命低于生命上限，再获得 ${round1(v*.5)} 点格挡。`,
+      execute:`造成 ${v} 点基础伤害；目标生命低于 40% 时，本次伤害乘 1.65。`,transfusion:`扣除至多 ${n+1} 层目标流血；每扣除 1 层回复 1.5 点生命并获得 0.5 层血怒。`
+    })[op];
+  }
+
+  const ACTIONS = [];
+  ARCHETYPES.forEach(arch=>{
+    for(let tier=0;tier<5;tier++) ACTION_BLUEPRINTS[arch.id].forEach((bp,index)=>{
+      const [baseName,op,baseTime,tags,value] = bp;
+      const rarity = RARITY_TIER[tier];
+      ACTIONS.push({id:`a_${arch.id}_${tier}_${index}`,kind:"action",arch:arch.id,name:`${TIER_PREFIX[tier]}·${baseName}`,op,tier,rarity,price:PRICE.action[rarity],time:round1(Math.max(.45,baseTime-tier*.04)),value,tags:[arch.id,...tags],effect:actionEffect(op,value,tier)});
+    });
+  });
+
+  const STRATEGY_NAMES = ["寻迹","择锋","预判","连携","弃旧","应变","急取","沉思","递归","双路"];
+  const STRATEGY_CONFIGS = [
+    {draw:3,keep:1,selector:"arch"},{draw:4,keep:1,selector:"attack"},{draw:3,keep:1,selector:"conditional"},{draw:5,keep:2,selector:"arch"},{draw:4,keep:1,selector:"setup"},
+    {draw:4,keep:1,selector:"defense"},{draw:3,keep:1,selector:"fastest"},{draw:4,keep:1,selector:"slowest"},{draw:5,keep:1,selector:"strategy"},{draw:5,keep:2,selector:"adaptive"}
+  ];
+  const STRATEGIES = [];
+  ARCHETYPES.forEach(arch=>STRATEGY_CONFIGS.forEach((config,index)=>{
+    const tier = Math.floor(index/2), rarity=RARITY_TIER[tier];
+    const selectorText = {arch:`第一张带有「${arch.name}」标签的牌`,attack:"第一张攻击牌",conditional:"生命低于 55% 时的第一张防御牌，否则为第一张攻击牌",setup:"第一张准备牌",defense:"第一张防御牌",fastest:"耗时最短的牌",slowest:"耗时最长的牌",strategy:"第一张策略牌",adaptive:`生命低于 50% 时至多两张防御牌或续航牌，否则至多两张带有「${arch.name}」标签的牌`}[config.selector];
+    STRATEGIES.push({id:`s_${arch.id}_${index}`,kind:"strategy",arch:arch.id,name:`${arch.name}·${STRATEGY_NAMES[index]}`,tier,rarity,price:PRICE.strategy[rarity],time:round1(1.15+tier*.12),tags:[arch.id,"strategy"],...config,effect:`执行时抽 ${config.draw} 张，保留${selectorText}${config.keep>1?`（最多 ${config.keep} 张）`:""}进入待封装区，弃置其余牌。`});
+  }));
+
+  const WEAPON_NAMES = {
+    combo:["双生短刃","节拍匕首","回旋刃","百裂环","疾风轮","无限刃舞"],
+    charge:["蓄能锤","聚力大剑","磁暴枪","破城槌","天穹巨刃","坍缩核心"],
+    guard:["圆盾","反击钩剑","荆棘塔盾","壁垒长枪","不动要塞","永恒城墙"],
+    forge:["学徒铁锤","淬火剑","齿轮斧","熔炉炮","大师砧","活体兵工厂"],
+    bleed:["放血匕首","血槽弯刀","赤红锯刃","祭仪长镰","渴血魔刃","猩红契约"]
+  };
+  const WEAPON_OPS = {
+    combo:["combo_hit","combo_gain","combo_multi","combo_hit","combo_multi","combo_storm"],
+    charge:["charge_gain","charge_hit","charge_gain","charge_hit","charge_burst","charge_burst"],
+    guard:["guard_block","guard_counter","guard_thorns","guard_block","guard_bash","guard_bash"],
+    forge:["forge_gain","forge_hit","forge_gain","forge_hit","forge_all","forge_all"],
+    bleed:["bleed_apply","bleed_hit","bleed_apply","bleed_drain","bleed_burst","bleed_burst"]
+  };
+  const WEAPON_RARITIES=["普通","普通","稀有","稀有","史诗","传说"];
+  const WEAPONS=[];
+  ARCHETYPES.forEach(arch=>WEAPON_NAMES[arch.id].forEach((name,index)=>{
+    const rarity=WEAPON_RARITIES[index], op=WEAPON_OPS[arch.id][index], amount=round1(3+index*2.1);
+    const hits=2+Math.floor(index/2),forgeGain=1+Math.floor(index/3);
+    const effect={combo_hit:`造成 ${amount} + 当前连段 ×0.35 点基础伤害，并获得 1 层连段。`,combo_gain:`获得 ${2+index} 层连段。`,combo_multi:`攻击 ${hits} 次，每次造成 ${round1(amount*.55)} 点基础伤害。`,combo_storm:`攻击 min（7，2 + 向下取整（当前连段 ÷2））次，每次造成 ${round1(amount*.5)} 点基础伤害，随后保留向下取整后的 50% 连段。`,charge_gain:`获得 ${2+index} 层蓄力。`,charge_hit:`造成 ${amount} 点基础伤害；每层蓄力使伤害增加 13%，随后清空蓄力。`,charge_burst:`造成 ${amount} 点基础伤害；每层蓄力使伤害增加 18%，随后保留向下取整后的 20% 蓄力。`,guard_block:`获得 ${Math.round(amount*2)} 点格挡。`,guard_counter:`读取 min（当前格挡，${round1(amount*2)}）点格挡，扣除读取值的 25%，造成 ${amount} + 读取值 ×0.6 点基础伤害。`,guard_thorns:`获得 ${2+index} 层荆棘。`,guard_bash:`造成 ${amount} + 当前格挡 ×0.18 点基础伤害。`,forge_gain:`自身获得 ${2+Math.floor(index/2)} 层锻造。`,forge_hit:`造成 ${amount} + 自身锻造 ×1.05 点基础伤害。`,forge_all:`全部已封装武器各获得 ${forgeGain} 层锻造，造成 ${amount} + 全武器锻造总层数 ×0.4 点基础伤害。`,bleed_apply:`施加 ${Math.round(amount)} 层流血。`,bleed_hit:`造成 ${amount} 点基础伤害，回复实际生命伤害的 25%。`,bleed_drain:`扣除 min（目标流血，${amount}）层流血，造成 ${amount} + 被扣除流血层数点基础伤害，回复实际生命伤害的 20%。`,bleed_burst:`造成 ${amount} + 目标流血 ×0.32 点基础伤害，随后保留目标流血的 82%。`}[op];
+    WEAPONS.push({id:`w_${arch.id}_${index}`,kind:"weapon",arch:arch.id,name,op,index,rarity,price:PRICE.weapon[rarity],slots:[3,3,4,4,5,6][index],time:round1(1.1+index*.18),amount,effect});
+  }));
+
+  const CARD_DEFS=[...ACTIONS,...STRATEGIES];
+  const CARD_MAP=Object.fromEntries(CARD_DEFS.map(item=>[item.id,item]));
+  const WEAPON_MAP=Object.fromEntries(WEAPONS.map(item=>[item.id,item]));
+  const ECONOMY={startGold:4,refreshCost:2,maxInterest:3};
+  const KEYWORD_DEFS={
+    "基础伤害":"牌面公式计算出的伤害。结算顺序为：体系伤害系数 → 血怒系数（1 + 血怒层数 ×3.5%）→ 破绽系数（1 + 破绽层数 ×3.5%）→ 固守减伤 → 招架 → 格挡。",
+    "生命伤害":"固守、招架和格挡结算后，最终从生命值中扣除的数值。",
+    "牌链":"由 1 把武器和等同于该武器卡槽数的卡牌组成。卡牌按槽位顺序执行，最后触发 1 次武器效果，然后从第 1 个槽位重新循环。",
+    "首链":"第 1 条牌链。开战前必须填满全部卡槽且至少包含 1 张策略牌；开战时立即封装。",
+    "后续链":"第 2–5 条牌链。战前只能预放策略牌；空卡槽由待封装区按 FIFO 顺序填充，填满后封装。",
+    "封装":"当武器对应的全部卡槽填满时，将该蓝图锁定为循环牌链。每新增 1 条牌链，所有旧牌链的卡牌耗时与武器耗时都乘 2。",
+    "待封装区":"策略牌保留的卡牌先进入此队列。系统按 FIFO 顺序把队首卡牌填入最前一条未封装蓝图的第 1 个空卡槽。",
+    "FIFO":"先进先出：最早进入待封装区的卡牌最先填入空卡槽。",
+    "抽牌堆":"未被预放进蓝图或封装进牌链的已拥有卡牌。策略牌从堆顶抽牌；抽牌堆为空时，将弃牌堆洗牌后作为新抽牌堆。",
+    "弃牌堆":"策略牌抽出但未保留的卡牌进入此处。抽牌堆为空时，弃牌堆会被洗牌并重建抽牌堆。",
+    "抽牌":"从抽牌堆顶依次取出指定数量的卡牌。抽牌堆与弃牌堆都为空时，本次抽牌数量可以小于牌面值。",
+    "弃牌":"把策略牌抽出但未保留的卡牌移入弃牌堆。",
+    "策略牌":"必须进入牌链并轮到自身时才执行。执行内容只负责抽牌、筛选、保留和弃牌；被保留的卡牌进入待封装区。",
+    "行动牌":"进入牌链后按卡槽顺序循环执行的效果牌；战前仅首链允许预放行动牌。",
+    "攻击牌":"带有 attack 标签的卡牌，可被指定攻击牌的策略筛选。",
+    "防御牌":"带有 defense 标签的卡牌，可被指定防御牌的策略筛选。",
+    "准备牌":"带有 setup 标签的卡牌，可被指定准备牌的策略筛选。",
+    "续航牌":"带有 sustain 标签的卡牌，可被低生命条件策略筛选。",
+    "武器效果":"一条牌链的全部卡牌执行完后触发 1 次，随后该牌链返回第 1 个卡槽。",
+    "卡槽":"武器规定的牌链容量。3 格武器必须填入 3 张卡牌后才能封装。",
+    "连段":"连击体系资源。不会自动衰减；具体消费层数与每层追加伤害由卡牌或武器描述明确给出。",
+    "蓄力":"重击体系资源。不同效果每层提供 10%、13%、15%、18% 或 22% 的伤害增幅，具体比例以牌面为准。",
+    "格挡":"受到伤害时在生命之前结算，1 点格挡抵扣 1 点伤害，抵扣后扣除等量格挡。",
+    "破绽":"每层使受到的伤害增加 3.5%；每次受到攻击后减少 0.15 层。",
+    "荆棘":"受到生命伤害时反射 min（当前荆棘，max（1，本次生命伤害 ×12%））点伤害，随后减少 0.5 层荆棘。",
+    "固守":"在招架与格挡之前按百分比降低受到的伤害；同类效果取最高值，程序上限为 35%。",
+    "招架":"在格挡之前按 1 点招架抵扣 1 点伤害，抵扣后扣除等量招架值。",
+    "锻造":"记录在单把已封装武器上的永久战斗资源；不会自动衰减，具体每层加成由卡牌或武器描述明确给出。",
+    "武器威力":"每 1 点使当前武器效果造成的伤害增加 8%；只影响持有该数值的武器。",
+    "流血":"每秒造成 max（1，当前流血层数 ×48%）点伤害，随后减少 1 层。",
+    "血怒":"每层使攻击伤害增加 3.5%；每次攻击后减少 0.2 层。",
+    "吸血":"按本次实际生命伤害的牌面百分比回复生命；格挡吸收的伤害不计入回复基数。",
+    "DPS":"累计造成的生命伤害 ÷ 经过秒数。数据池 DPS 使用 42 秒无限血木人模拟；战斗界面使用本场已经过时间实时计算。",
+    "邻近匹配":"将玩家 42 秒模拟 DPS 与本轮 10 条数据比较，从差值最小的 3 条中随机选择 1 条。",
+    "利息":"开战时锁定：每保留 10c 获得 1c，向下取整，单轮最多 3c。",
+    "稀有度":"每个商店栏位独立按本轮概率抽取普通、稀有、史诗或传说，再从该稀有度的对应商品池抽取 1 件。",
+    "普通":"价格：行动牌 3c、策略牌 5c、武器 6c。",
+    "稀有":"价格：行动牌 5c、策略牌 7c、武器 9c。",
+    "史诗":"价格：行动牌 8c、策略牌 10c、武器 13c。",
+    "传说":"价格：行动牌 12c、策略牌 14c、武器 17c。"
+  };
+  const KEYWORD_KEYS=Object.keys(KEYWORD_DEFS).sort((a,b)=>b.length-a.length);
+  const KEYWORD_SOURCE=KEYWORD_KEYS.map(term=>term.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|");
+  const KEYWORD_TEST=new RegExp(KEYWORD_SOURCE);
+  const KEYWORD_SPLIT=new RegExp(`(${KEYWORD_SOURCE})`,"g");
+  const state={selectedArch:null,gold:0,wins:0,losses:0,round:1,ownedCards:[],ownedWeapons:[],plans:[],offers:null,uid:0,speed:1,battle:null,lastReplay:null,roundIncomeGranted:false};
+  let DATASETS=[];
+  let dragPayload=null;
+
+  function round1(value){return Math.round(value*10)/10}
+  function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+  function seededRandom(seed){let x=seed>>>0;return()=>{x+=0x6D2B79F5;let r=x;r=Math.imul(r^r>>>15,r|1);r^=r+Math.imul(r^r>>>7,r|61);return((r^r>>>14)>>>0)/4294967296}}
+  function randomItem(items,random=Math.random){return items[Math.floor(random()*items.length)]}
+  function shuffleWith(items,random=Math.random){const out=[...items];for(let i=out.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[out[i],out[j]]=[out[j],out[i]]}return out}
+  function uid(prefix){state.uid+=1;return `${prefix}_${state.uid}`}
+  function toast(message){const el=document.querySelector("#toast");el.textContent=message;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),1700)}
+  function showScreen(id){document.querySelectorAll(".screen").forEach(el=>el.classList.toggle("active",el.id===id));window.scrollTo(0,0)}
+  function applyKeywordMarkup(root=document.body){
+    if(!root)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(node){const parent=node.parentElement;if(!parent||!node.nodeValue.trim()||!KEYWORD_TEST.test(node.nodeValue)||parent.closest("script,style,.keyword-term,#keywordTooltip,[data-keyword-skip]"))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT}});const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);nodes.forEach(node=>{const fragment=document.createDocumentFragment();node.nodeValue.split(KEYWORD_SPLIT).forEach(part=>{if(KEYWORD_DEFS[part]){const span=document.createElement("span");span.className="keyword-term";span.dataset.keyword=part;span.tabIndex=0;span.setAttribute("role","term");span.setAttribute("aria-describedby","keywordTooltip");span.textContent=part;fragment.appendChild(span)}else if(part)fragment.appendChild(document.createTextNode(part))});node.replaceWith(fragment)})
+  }
+  function positionKeywordTooltip(x,y){const tip=document.querySelector("#keywordTooltip"),gap=13;let left=x+gap,top=y+gap;const width=tip.offsetWidth,height=tip.offsetHeight;if(left+width>window.innerWidth-10)left=x-width-gap;if(top+height>window.innerHeight-10)top=y-height-gap;tip.style.left=`${Math.max(10,left)}px`;tip.style.top=`${Math.max(10,top)}px`}
+  function showKeywordTooltip(term,x,y){const tip=document.querySelector("#keywordTooltip");document.querySelector("#keywordTooltipTitle").textContent=term;document.querySelector("#keywordTooltipText").textContent=KEYWORD_DEFS[term];tip.classList.add("open");positionKeywordTooltip(x,y)}
+  function hideKeywordTooltip(){document.querySelector("#keywordTooltip").classList.remove("open")}
+  function roundIncome(round){return 4+Math.floor((round-1)/2)}
+  function battleReward(round,won){return (won?3:5)+Math.floor((round-1)/3)}
+  function interestFor(gold){return Math.min(ECONOMY.maxInterest,Math.floor(gold/10))}
+  function rarityWeights(round){
+    if(round<=3)return {"普通":82,"稀有":18,"史诗":0,"传说":0};
+    if(round<=7)return {"普通":64,"稀有":30,"史诗":6,"传说":0};
+    if(round<=11)return {"普通":47,"稀有":34,"史诗":16,"传说":3};
+    if(round<=15)return {"普通":33,"稀有":35,"史诗":24,"传说":8};
+    return {"普通":22,"稀有":31,"史诗":32,"传说":15};
+  }
+  function rollRarity(round,random=Math.random){const weights=rarityWeights(round),roll=random()*100;let total=0;for(const rarity of ["普通","稀有","史诗","传说"]){total+=weights[rarity];if(roll<total)return rarity}return "普通"}
+  function offerFromPool(pool,round,random){const rarity=rollRarity(round,random);const same=pool.filter(item=>item.rarity===rarity);return randomItem(same.length?same:pool.filter(item=>RARITY_ORDER[item.rarity]<=RARITY_ORDER[rarity]),random)}
+  function generateOffers(round=state.round,random=Math.random){
+    const take=(pool,count)=>Array.from({length:count},()=>{const ref=offerFromPool(pool,round,random);return {uid:uid("offer"),ref:ref.id,sold:false}});
+    return {actions:take(ACTIONS,5),strategies:take(STRATEGIES,2),weapons:take(WEAPONS,2)};
+  }
+  function addCard(defId){const item={uid:uid("card"),defId};state.ownedCards.push(item);return item}
+  function addWeapon(defId){const item={uid:uid("weapon"),defId};state.ownedWeapons.push(item);return item}
+  function cardItem(uidValue){return state.ownedCards.find(item=>item.uid===uidValue)}
+  function weaponItem(uidValue){return state.ownedWeapons.find(item=>item.uid===uidValue)}
+  function findCardPlacement(cardUid){for(let p=0;p<state.plans.length;p++){const s=state.plans[p].slots.indexOf(cardUid);if(s>=0)return {plan:p,slot:s}}return null}
+  function findWeaponPlacement(weaponUid){const p=state.plans.findIndex(plan=>plan.weaponUid===weaponUid);return p>=0?p:null}
+  function unplaceCard(cardUid){const found=findCardPlacement(cardUid);if(found)state.plans[found.plan].slots[found.slot]=null}
+  function unplaceWeapon(weaponUid){const found=findWeaponPlacement(weaponUid);if(found!==null){state.plans[found].weaponUid=null;state.plans[found].slots.forEach((_,i)=>state.plans[found].slots[i]=null)}}
+  function normalizePlan(plan){
+    if(!plan.weaponUid){plan.slots=[];return}
+    const weapon=WEAPON_MAP[weaponItem(plan.weaponUid)?.defId];if(!weapon){plan.weaponUid=null;plan.slots=[];return}
+    plan.slots=Array.from({length:weapon.slots},(_,i)=>plan.slots[i]||null);
+  }
+  function sanitizePlans(){let returned=0;state.plans.forEach((plan,index)=>{normalizePlan(plan);if(index>0)plan.slots=plan.slots.map(cardUid=>{const def=CARD_MAP[cardItem(cardUid)?.defId];if(cardUid&&def?.kind!=="strategy"){returned++;return null}return cardUid})});if(returned)toast(`${returned} 张行动牌已退回库存：后续链战前只能预放策略牌`) }
+  function starterIds(arch){return {actions:[`a_${arch}_0_0`,`a_${arch}_0_1`],strategy:`s_${arch}_0`,weapon:`w_${arch}_0`}}
+  function resetRun(arch){
+    Object.assign(state,{selectedArch:arch,gold:ECONOMY.startGold,wins:0,losses:0,round:1,ownedCards:[],ownedWeapons:[],plans:Array.from({length:5},()=>({weaponUid:null,slots:[]})),offers:null,uid:0,speed:1,battle:null,lastReplay:null,roundIncomeGranted:true});
+    const starter=starterIds(arch);const strategy=addCard(starter.strategy);const actions=starter.actions.map(addCard);const weapon=addWeapon(starter.weapon);
+    state.plans[0].weaponUid=weapon.uid;normalizePlan(state.plans[0]);state.plans[0].slots=[strategy.uid,...actions.map(item=>item.uid)];state.offers=generateOffers();renderShop();showScreen("shopScreen");
+  }
+  function autoArrange(){
+    const first=state.plans[0];if(!first.weaponUid){const free=state.ownedWeapons.find(item=>findWeaponPlacement(item.uid)===null);if(free)first.weaponUid=free.uid}normalizePlan(first);
+    const available=state.ownedCards.filter(item=>!findCardPlacement(item.uid));const strategies=available.filter(item=>CARD_MAP[item.defId].kind==="strategy");const actions=available.filter(item=>CARD_MAP[item.defId].kind==="action");
+    first.slots=first.slots.map((value,index)=>value||(index===0&&strategies.length?strategies.shift().uid:(actions.shift()||strategies.shift())?.uid||null));sanitizePlans();renderBuilder();
+  }
+  function cardHtml(item){const def=CARD_MAP[item.defId];return `<div class="drag-card ${def.kind}" draggable="true" data-drag-type="card" data-drag-id="${item.uid}" title="${def.effect}"><h4>${def.name}</h4><p>${def.effect}</p><div class="tiny">${def.kind==="strategy"?"策略":"行动"} · ${def.time}s · ${ARCH[def.arch].name}</div></div>`}
+  function weaponHtml(item){const def=WEAPON_MAP[item.defId];return `<div class="weapon-chip" draggable="true" data-drag-type="weapon" data-drag-id="${item.uid}" title="${def.effect}"><h4>${def.name}</h4><p>${def.slots} 格 · ${def.effect}</p></div>`}
+  function renderBuilder(){
+    const freeCards=state.ownedCards.filter(item=>!findCardPlacement(item.uid));const freeWeapons=state.ownedWeapons.filter(item=>findWeaponPlacement(item.uid)===null);
+    document.querySelector("#cardInventory").innerHTML=freeCards.length?freeCards.map(cardHtml).join(""):`<span class="future-note">所有卡牌都已放置；也可把非首链行动牌留在牌组中等待策略抽取。</span>`;
+    document.querySelector("#weaponInventory").innerHTML=freeWeapons.length?freeWeapons.map(weaponHtml).join(""):`<span class="future-note">所有武器均已进入链蓝图。</span>`;
+    document.querySelector("#chainPlans").innerHTML=state.plans.map((plan,index)=>{
+      const weaponItemValue=weaponItem(plan.weaponUid),weapon=weaponItemValue&&WEAPON_MAP[weaponItemValue.defId];normalizePlan(plan);
+      return `<section class="chain-plan" data-drop-zone="chain" data-plan-index="${index}"><div class="chain-plan-head"><button class="chain-handle" draggable="true" data-drag-type="chain" data-drag-id="${index}" title="拖动调整整条链顺序">≡</button><div class="weapon-socket ${weapon?"":"empty"}" data-drop-zone="weapon-slot" data-plan-index="${index}">${weapon?weaponHtml(weaponItemValue):`<span><b class="plan-label">链 ${index+1}</b> · 拖入武器创建蓝图</span>`}</div></div>${weapon?`<div class="chain-slots">${plan.slots.map((cardUid,slot)=>`<div class="card-slot" data-drop-zone="card-slot" data-plan-index="${index}" data-slot-index="${slot}">${cardUid?cardHtml(cardItem(cardUid)):`${index===0?"拖入行动或策略":"仅可预放策略"}<br>槽位 ${slot+1}`}</div>`).join("")}</div><div class="future-note">${index===0?"开战时立即封装；必须填满。":"策略牌先占位，战斗中由待封装区 FIFO 填满空位后才封装。"}</div>`:""}</section>`;
+    }).join("");
+    const first=state.plans[0],weapon=weaponItem(first.weaponUid),full=weapon&&first.slots.length&&first.slots.every(Boolean),hasStrategy=first.slots.some(id=>CARD_MAP[cardItem(id)?.defId]?.kind==="strategy");
+    const ready=Boolean(full&&hasStrategy);document.querySelector("#battleBtn").disabled=!ready;document.querySelector("#battleBtn").textContent=ready?"进入本轮战斗":"首链未完成";
+    document.querySelector("#buildStatus").innerHTML=ready?`<b class="ok">首链可封装</b><br>共 ${state.ownedCards.length} 张卡、${state.ownedWeapons.length} 把武器；未放置卡牌将成为抽牌堆。`:`<b class="bad">首链需要武器、填满全部卡槽，并至少包含 1 张策略牌。</b>`;
+    applyKeywordMarkup(document.querySelector(".builder"));
+  }
+  function placeCard(cardUid,planIndex,slotIndex){
+    const item=cardItem(cardUid),def=item&&CARD_MAP[item.defId],plan=state.plans[planIndex];if(!def||!plan?.weaponUid)return;
+    if(planIndex>0&&def.kind!=="strategy"){toast("后续链战前只能预放策略牌；行动牌应留在牌组等待抽取");return}
+    const current=findCardPlacement(cardUid),target=plan.slots[slotIndex];if(current)state.plans[current.plan].slots[current.slot]=null;
+    if(target){const canSwap=current&&(current.plan===0||CARD_MAP[cardItem(target)?.defId]?.kind==="strategy");if(canSwap)state.plans[current.plan].slots[current.slot]=target}
+    plan.slots[slotIndex]=cardUid;renderBuilder();
+  }
+  function placeWeapon(weaponUid,planIndex){
+    const target=state.plans[planIndex],from=findWeaponPlacement(weaponUid),existing=target.weaponUid;if(from!==null)state.plans[from].weaponUid=existing;target.weaponUid=weaponUid;
+    if(from===null&&existing){}sanitizePlans();renderBuilder();
+  }
+  function dropPayloadAt(payload,zone){
+    if(!payload||!zone)return;const type=payload.type,id=payload.id,drop=zone.dataset.dropZone;
+    if(type==="card"&&drop==="card-inventory"){unplaceCard(id);renderBuilder();return}
+    if(type==="weapon"&&drop==="weapon-inventory"){unplaceWeapon(id);renderBuilder();return}
+    if(type==="card"&&drop==="card-slot"){placeCard(id,Number(zone.dataset.planIndex),Number(zone.dataset.slotIndex));return}
+    if(type==="weapon"&&drop==="weapon-slot"){placeWeapon(id,Number(zone.dataset.planIndex));return}
+    if(type==="chain"&&drop==="chain"){const from=Number(id),to=Number(zone.dataset.planIndex);if(from!==to){[state.plans[from],state.plans[to]]=[state.plans[to],state.plans[from]];sanitizePlans();renderBuilder()}return}
+  }
+  document.addEventListener("dragstart",event=>{const el=event.target.closest("[data-drag-type]");if(!el)return;dragPayload={type:el.dataset.dragType,id:el.dataset.dragId};event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",JSON.stringify(dragPayload))});
+  document.addEventListener("dragover",event=>{const zone=event.target.closest("[data-drop-zone]");if(zone){event.preventDefault();zone.classList.add("drag-over")}});
+  document.addEventListener("dragleave",event=>event.target.closest("[data-drop-zone]")?.classList.remove("drag-over"));
+  document.addEventListener("drop",event=>{const zone=event.target.closest("[data-drop-zone]");if(!zone)return;event.preventDefault();document.querySelectorAll(".drag-over").forEach(el=>el.classList.remove("drag-over"));dropPayloadAt(dragPayload,zone);dragPayload=null});
+  let touchDrag={timer:null,active:false,payload:null,ghost:null,x:0,y:0};
+  document.addEventListener("pointerdown",event=>{if(event.pointerType==="mouse")return;const el=event.target.closest("[data-drag-type]");if(!el)return;touchDrag.payload={type:el.dataset.dragType,id:el.dataset.dragId};touchDrag.x=event.clientX;touchDrag.y=event.clientY;touchDrag.timer=setTimeout(()=>{touchDrag.active=true;touchDrag.ghost=el.cloneNode(true);touchDrag.ghost.classList.add("drag-ghost");document.body.appendChild(touchDrag.ghost);moveGhost(event.clientX,event.clientY);navigator.vibrate?.(20)},360)});
+  function moveGhost(x,y){if(touchDrag.ghost){touchDrag.ghost.style.left=`${x+10}px`;touchDrag.ghost.style.top=`${y+10}px`}}
+  document.addEventListener("pointermove",event=>{if(!touchDrag.payload)return;if(!touchDrag.active&&Math.hypot(event.clientX-touchDrag.x,event.clientY-touchDrag.y)>12){clearTimeout(touchDrag.timer);touchDrag.payload=null;return}if(touchDrag.active){event.preventDefault();moveGhost(event.clientX,event.clientY)}},{passive:false});
+  document.addEventListener("pointerup",event=>{clearTimeout(touchDrag.timer);if(touchDrag.active){touchDrag.ghost?.remove();touchDrag.ghost=null;const zone=document.elementFromPoint(event.clientX,event.clientY)?.closest("[data-drop-zone]");dropPayloadAt(touchDrag.payload,zone)}touchDrag={timer:null,active:false,payload:null,ghost:null,x:0,y:0}});
+  function offerCard(def,offer){return `<article class="offer ${offer.sold?"sold":""}"><div><div class="offer-top"><span class="rarity ${def.rarity}">${def.rarity}</span><span class="price">${def.price}c</span></div><h3>${def.name}</h3><p>${def.effect}</p><div class="meta">${def.kind==="weapon"?`${def.slots} 格 · ${def.time}s`:`${def.time}s`} · ${ARCH[def.arch].name}</div></div><button class="${offer.sold?"ghost":"secondary"}" data-buy-offer="${offer.uid}" ${offer.sold||state.gold<def.price?"disabled":""}>${offer.sold?"已售出":"购买"}</button></article>`}
+  function renderShop(){
+    document.querySelector("#goldText").textContent=`${state.gold}c`;document.querySelector("#winsText").textContent=state.wins;document.querySelector("#lossesText").textContent=`${state.losses}/3`;document.querySelector("#roundText").textContent=`${state.round}/20`;
+    document.querySelector("#shopPhase").textContent=`第 ${state.round} 轮 · 补给与编排`;document.querySelector("#shopTitle").textContent=`第 ${state.round} 轮补给`;
+    const weights=rarityWeights(state.round);document.querySelector("#shopSubtitle").textContent=`本轮单个栏位稀有度概率：普通 ${weights["普通"]}% · 稀有 ${weights["稀有"]}% · 史诗 ${weights["史诗"]}% · 传说 ${weights["传说"]}%。`;
+    document.querySelector("#rarityOdds").innerHTML=`<span class="odd">普通 ${weights["普通"]}%</span><span class="odd rare">稀有 ${weights["稀有"]}%</span><span class="odd epic">史诗 ${weights["史诗"]}%</span><span class="odd legend">传说 ${weights["传说"]}%</span>`;
+    document.querySelector("#actionOffers").innerHTML=state.offers.actions.map(offer=>offerCard(CARD_MAP[offer.ref],offer)).join("");
+    document.querySelector("#strategyOffers").innerHTML=state.offers.strategies.map(offer=>offerCard(CARD_MAP[offer.ref],offer)).join("");
+    document.querySelector("#weaponOffers").innerHTML=state.offers.weapons.map(offer=>offerCard(WEAPON_MAP[offer.ref],offer)).join("");
+    document.querySelector("#refreshBtn").disabled=state.gold<ECONOMY.refreshCost;
+    document.querySelector("#economyStrip").innerHTML=`<div class="economy-cell"><b>+${roundIncome(state.round)}c</b>本轮基础收入（已发放）</div><div class="economy-cell"><b>+${battleReward(state.round,true)} / +${battleReward(state.round,false)}c</b>胜利 / 失败追赶奖励</div><div class="economy-cell"><b>+${interestFor(state.gold)}c</b>当前利息：每留 10c 得 1c，最多 3c</div><div class="economy-cell"><b>2c</b>整店刷新费用</div>`;
+    renderBuilder();renderDataLab();applyKeywordMarkup(document.querySelector("#shopScreen"));
+  }
+  function findOffer(offerUid){for(const group of Object.values(state.offers)){const offer=group.find(item=>item.uid===offerUid);if(offer)return offer}return null}
+  function buyOffer(offerUid){const offer=findOffer(offerUid);if(!offer||offer.sold)return;const def=CARD_MAP[offer.ref]||WEAPON_MAP[offer.ref];if(!def||state.gold<def.price)return;state.gold-=def.price;offer.sold=true;if(def.kind==="weapon")addWeapon(def.id);else addCard(def.id);renderShop();toast(`已购买「${def.name}」，请拖入蓝图或留在牌组`) }
+  function refreshShop(){if(state.gold<ECONOMY.refreshCost)return;state.gold-=ECONOMY.refreshCost;state.offers=generateOffers();renderShop();toast("商店已刷新")}
+  function buildSnapshot(){
+    const placed=new Set();const plans=state.plans.filter(plan=>plan.weaponUid).map(plan=>({weaponId:WEAPON_MAP[weaponItem(plan.weaponUid).defId].id,slots:plan.slots.map(cardUid=>{if(cardUid)placed.add(cardUid);return cardUid?cardItem(cardUid).defId:null})}));
+    const deck=state.ownedCards.filter(item=>!placed.has(item.uid)).map(item=>item.defId);
+    return {arch:state.selectedArch,plans,deck,allCards:state.ownedCards.map(item=>item.defId),allWeapons:state.ownedWeapons.map(item=>item.defId)};
+  }
+  function renderDataLab(){
+    if(!DATASETS.length)return;const rows=DATASETS[state.round-1];if(!rows)return;const byArch=ARCHETYPES.map(arch=>{const data=rows.filter(row=>row.arch===arch.id);return {arch,avg:round1(data.reduce((sum,row)=>sum+row.dps,0)/data.length)}});const allDps=rows.map(row=>row.dps);const spread=round1((Math.max(...allDps)-Math.min(...allDps))/Math.max(1,allDps.reduce((a,b)=>a+b,0)/allDps.length)*100);
+    document.querySelector("#dataSummary").innerHTML=byArch.map(item=>`<div class="data-chip"><b>${item.avg}</b>${item.arch.name}平均 DPS</div>`).join("")+`<div class="data-chip"><b>${spread}%</b>本轮样本极差 / 均值</div>`;
+    document.querySelector("#dataRows").innerHTML=rows.map((row,index)=>`<tr><td>R${state.round}-${String(index+1).padStart(2,"0")}</td><td>${ARCH[row.arch].name}</td><td>${row.dps}</td><td>${row.totalIncome}c</td><td>${row.spent}c</td><td>${row.purchaseHistory.filter(e=>e.type==="buy").length}</td><td>${row.build.plans.length}</td><td class="legal">${row.legal?"✓ 可正常购买":"需检查"}</td></tr>`).join("");
+  }
+
+  function dominantFactor(arch,round){const factors={combo:clamp(1.16-round*.012,.9,1.15),charge:round<=6?1.43-(round-1)*.065:clamp(.95+round*.011,.96,1.17),guard:round<=6?2.13-(round-1)*.08:clamp(1.78-round*.017,1.44,1.77),forge:clamp(.88+round*.0195,.9,1.27),bleed:clamp(1.23-round*.01,1.03,1.22)};return factors[arch]||1}
+  function emptyActor(name,round){const hp=150+round*24;return {name,arch:"combo",round,hp,maxHp:hp,block:0,combo:0,charge:0,retainCharge:false,thorns:0,parry:0,fortify:0,bloodFury:0,bleed:0,vulnerable:0,deck:[],discard:[],pending:[],plans:[],sealed:[],damageDone:0,damageTaken:0,healDone:0,dotTimer:0,random:Math.random,infiniteHp:false}}
+  function createActor(build,name,round,random){const actor=emptyActor(name,round);actor.arch=build.arch;actor.random=random;actor.deck=shuffleWith(build.deck,random);actor.plans=build.plans.map(plan=>({weaponId:plan.weaponId,slots:[...plan.slots],sealed:false}));sealPlan(actor,0,null,true);return actor}
+  function sealPlan(actor,index,battle,initial=false){const plan=actor.plans[index];if(!plan||plan.sealed||!plan.weaponId||plan.slots.some(slot=>!slot))return false;if(!initial)actor.sealed.forEach(chain=>chain.slow*=2);plan.sealed=true;actor.sealed.push({planIndex:index,weaponId:plan.weaponId,slots:[...plan.slots],index:0,phase:"card",timer:0,slow:1,forge:0,weaponPower:0,sharpen:0});if(battle)logBattle(battle,`${actor.name} 封装第 ${index+1} 条牌链；此前所有牌链的执行耗时翻倍。`);return true}
+  function drawOne(actor){if(!actor.deck.length&&actor.discard.length){actor.deck=shuffleWith(actor.discard,actor.random);actor.discard=[]}return actor.deck.shift()||null}
+  function selectorMatch(def,selector,actor){if(selector==="arch")return def.tags.includes(actor.arch);if(selector==="attack")return def.tags.includes("attack");if(selector==="setup")return def.tags.includes("setup");if(selector==="defense")return def.tags.includes("defense");if(selector==="strategy")return def.kind==="strategy";if(selector==="conditional")return actor.hp/actor.maxHp<.55?def.tags.includes("defense"):def.tags.includes("attack");if(selector==="adaptive")return actor.hp/actor.maxHp<.5?def.tags.includes("defense")||def.tags.includes("sustain"):def.tags.includes(actor.arch);return true}
+  function fillPending(actor,battle){
+    while(actor.pending.length){const planIndex=actor.plans.findIndex(plan=>!plan.sealed&&plan.weaponId&&plan.slots.some(slot=>!slot));if(planIndex<0)return;const plan=actor.plans[planIndex],slot=plan.slots.findIndex(value=>!value);plan.slots[slot]=actor.pending.shift();if(plan.slots.every(Boolean))sealPlan(actor,planIndex,battle)}
+  }
+  function executeStrategy(actor,target,def,battle){
+    const drawn=[];for(let i=0;i<def.draw;i++){const card=drawOne(actor);if(card)drawn.push(card)}let ordered=[...drawn];if(def.selector==="fastest")ordered.sort((a,b)=>CARD_MAP[a].time-CARD_MAP[b].time);else if(def.selector==="slowest")ordered.sort((a,b)=>CARD_MAP[b].time-CARD_MAP[a].time);else ordered=ordered.filter(id=>selectorMatch(CARD_MAP[id],def.selector,actor));const chosen=ordered.slice(0,def.keep);const remaining=[...drawn];chosen.forEach(id=>{const index=remaining.indexOf(id);if(index>=0)remaining.splice(index,1)});actor.pending.push(...chosen);actor.discard.push(...remaining);if(battle)logBattle(battle,`${actor.name} 的策略「${def.name}」抽 ${drawn.length} 张，${chosen.length?`将 ${chosen.map(id=>CARD_MAP[id].name).join("、")} 放入待封装区`:`没有找到目标，全部弃置`}。`);fillPending(actor,battle)
+  }
+  function rawDamage(target,amount,source=null){let value=Math.max(0,round1(amount));value=round1(value*(1-clamp(target.fortify,0,.35)));const parry=Math.min(target.parry,value);target.parry=round1(target.parry-parry);value=round1(value-parry);const absorbed=Math.min(target.block,value);target.block=round1(target.block-absorbed);const dealt=round1(value-absorbed);target.damageTaken=round1(target.damageTaken+dealt);if(!target.infiniteHp)target.hp=Math.max(0,round1(target.hp-dealt));if(source){source.damageDone=round1(source.damageDone+dealt);if(target.thorns>0&&dealt>0){const reflected=Math.min(target.thorns,Math.max(1,dealt*.12));target.thorns=Math.max(0,round1(target.thorns-.5));source.hp=Math.max(0,round1(source.hp-reflected));source.damageTaken=round1(source.damageTaken+reflected)}}return dealt}
+  function attack(source,target,amount,battle,multiplier=1){const fury=1+source.bloodFury*.035;const vuln=1+target.vulnerable*.035;const factor=dominantFactor(source.arch,source.round);const dealt=rawDamage(target,amount*multiplier*fury*vuln*factor,source);if(source.bloodFury>0)source.bloodFury=Math.max(0,round1(source.bloodFury-.2));if(target.vulnerable>0)target.vulnerable=Math.max(0,round1(target.vulnerable-.15));return dealt}
+  function heal(actor,amount){const before=actor.hp;actor.hp=Math.min(actor.maxHp,round1(actor.hp+amount));actor.healDone=round1(actor.healDone+actor.hp-before);return actor.hp-before}
+  function selfDamage(actor,amount){const dealt=Math.min(actor.hp-1,round1(amount));actor.hp=round1(actor.hp-dealt);actor.damageTaken=round1(actor.damageTaken+dealt);return dealt}
+  function tierN(def){return def.tier+1}
+  function executeAction(source,target,def,chain,battle){
+    const t=tierN(def),v=round1(def.value+def.tier*Math.max(.5,def.value*.22));let dealt=0;const totalForge=()=>source.sealed.reduce((sum,item)=>sum+item.forge,0);
+    switch(def.op){
+      case"quick":dealt=attack(source,target,v,battle);source.combo+=1;break;case"combo_gain":source.combo+=t;break;
+      case"combo_spend":{const used=Math.min(source.combo,t+1);source.combo-=used;dealt=attack(source,target,v+used*1.5,battle);break}
+      case"multihit":for(let i=0;i<2+Math.floor(def.tier/2);i++)dealt+=attack(source,target,v,battle);break;case"expose":target.vulnerable+=t;break;
+      case"combo_finisher":dealt=attack(source,target,v+source.combo*1.4,battle);source.combo=0;break;case"tempo":dealt=attack(source,target,v,battle);source.block+=v;break;
+      case"echo":dealt=attack(source,target,v,battle);if(source.lastAttack)dealt+=attack(source,target,v*.7,battle);break;
+      case"charge_gain":source.charge+=t;break;case"charge_hit":dealt=attack(source,target,v,battle,1+source.charge*.15);source.charge=source.retainCharge?Math.floor(source.charge/2):0;source.retainCharge=false;break;
+      case"charge_keep":source.charge+=t;source.retainCharge=true;break;case"charge_double":source.charge+=t+Math.floor(source.charge*.25);break;
+      case"overcharge":dealt=attack(source,target,v,battle,1+source.charge*.22);source.charge=0;break;case"charge_block":source.block+=v;source.charge+=t;break;
+      case"charge_convert":{const spent=Math.min(source.block,t+1);source.block-=spent;source.charge+=spent*2;break}case"focus_hit":dealt=attack(source,target,v,battle,1+source.charge*.1);source.charge=Math.floor(source.charge/2);break;
+      case"block":source.block+=v;break;case"counter":{const used=Math.min(source.block,v+t);source.block-=used*.35;dealt=attack(source,target,v+used*.7,battle);break}
+      case"thorns":source.thorns+=t;break;case"block_hit":dealt=attack(source,target,v,battle);source.block+=v;break;case"fortify":source.block+=v;source.fortify=Math.max(source.fortify,.12+t*.02);break;
+      case"brace":source.block+=Math.min(v+t,source.block);break;case"shield_bash":dealt=attack(source,target,v+source.block*.22,battle);break;case"parry":source.block+=v;source.parry+=v*.65;break;
+      case"forge":chain.forge+=t;break;case"forge_hit":dealt=attack(source,target,v+chain.forge*.7,battle);break;case"weapon_power":chain.weaponPower+=t;break;
+      case"temper":source.sealed.forEach(item=>item.forge+=Math.max(1,Math.ceil(t/2)));break;case"repair":source.block+=v+Math.floor(totalForge()/3);break;case"molten":dealt=attack(source,target,v+totalForge()*.45,battle);break;
+      case"sharpen":chain.sharpen+=.1+t*.05;break;case"masterwork":{dealt=attack(source,target,v+totalForge()*.25,battle);const best=[...source.sealed].sort((a,b)=>b.forge-a.forge)[0];if(best)dealt+=executeWeapon(source,target,best,battle,true);break}
+      case"bleed":target.bleed+=v;break;case"rupture":{const burst=target.bleed*.32;target.bleed*=.68;dealt=attack(source,target,v+burst,battle);break}case"sacrifice":selfDamage(source,t+1);source.bloodFury+=t+1;break;
+      case"lifesteal":dealt=attack(source,target,v,battle);heal(source,dealt*.35);break;case"frenzy":source.bloodFury+=t;break;case"blood_block":source.block+=v+(source.hp<source.maxHp?v*.5:0);break;
+      case"execute":dealt=attack(source,target,v,battle,target.hp/target.maxHp<.4?1.65:1);break;case"transfusion":{const used=Math.min(target.bleed,t+1);target.bleed-=used;heal(source,used*1.5);source.bloodFury+=used*.5;break}
+    }
+    source.lastAttack=def.tags.includes("attack");if(battle&&battle.verbose)logBattle(battle,`${source.name} 执行「${def.name}」${dealt?`，造成 ${round1(dealt)} 点生命伤害`:""}。`)
+  }
+  function executeWeapon(source,target,chain,battle,echo=false){const def=WEAPON_MAP[chain.weaponId];if(!def)return 0;let dealt=0,amp=(1+chain.weaponPower*.08)*(1+chain.sharpen);chain.sharpen=0;
+    switch(def.op){case"combo_hit":dealt=attack(source,target,def.amount+source.combo*.35,battle,amp);source.combo+=1;break;case"combo_gain":source.combo+=2+def.index;break;case"combo_multi":for(let i=0;i<2+Math.floor(def.index/2);i++)dealt+=attack(source,target,def.amount*.55,battle,amp);break;case"combo_storm":for(let i=0;i<Math.min(7,2+Math.floor(source.combo/2));i++)dealt+=attack(source,target,def.amount*.5,battle,amp);source.combo=Math.floor(source.combo/2);break;
+      case"charge_gain":source.charge+=2+def.index;break;case"charge_hit":dealt=attack(source,target,def.amount,battle,amp*(1+source.charge*.13));source.charge=0;break;case"charge_burst":dealt=attack(source,target,def.amount,battle,amp*(1+source.charge*.18));source.charge=Math.floor(source.charge*.2);break;
+      case"guard_block":source.block+=def.amount*2;break;case"guard_counter":{const used=Math.min(source.block,def.amount*2);source.block-=used*.25;dealt=attack(source,target,def.amount+used*.6,battle,amp);break}case"guard_thorns":source.thorns+=2+def.index;break;case"guard_bash":dealt=attack(source,target,def.amount+source.block*.18,battle,amp);break;
+      case"forge_gain":chain.forge+=2+Math.floor(def.index/2);break;case"forge_hit":dealt=attack(source,target,def.amount+chain.forge*1.05,battle,amp);break;case"forge_all":source.sealed.forEach(item=>item.forge+=1+Math.floor(def.index/3));dealt=attack(source,target,def.amount+source.sealed.reduce((s,c)=>s+c.forge,0)*.4,battle,amp);break;
+      case"bleed_apply":target.bleed+=def.amount;break;case"bleed_hit":dealt=attack(source,target,def.amount,battle,amp);heal(source,dealt*.25);break;case"bleed_drain":{const burst=Math.min(target.bleed,def.amount);target.bleed-=burst;dealt=attack(source,target,def.amount+burst,battle,amp);heal(source,dealt*.2);break}case"bleed_burst":dealt=attack(source,target,def.amount+target.bleed*.32,battle,amp);target.bleed*=.82;break}
+    if(battle&&battle.verbose&&!echo)logBattle(battle,`${source.name} 的武器「${def.name}」触发${dealt?`，造成 ${round1(dealt)} 点生命伤害`:""}。`);return dealt}
+  function updateActor(actor,target,dt,battle){
+    const chains=[...actor.sealed];for(const chain of chains){chain.timer+=dt;const def=chain.phase==="card"?CARD_MAP[chain.slots[chain.index]]:WEAPON_MAP[chain.weaponId];if(!def)continue;const duration=def.time*chain.slow;if(chain.timer+1e-6<duration)continue;chain.timer-=duration;if(chain.phase==="card"){if(def.kind==="strategy")executeStrategy(actor,target,def,battle);else executeAction(actor,target,def,chain,battle);chain.index+=1;if(chain.index>=chain.slots.length){chain.index=0;chain.phase="weapon"}}else{executeWeapon(actor,target,chain,battle);chain.phase="card"}}
+    actor.dotTimer+=dt;if(actor.dotTimer>=1){actor.dotTimer-=1;if(actor.bleed>0){const dot=rawDamage(actor,Math.max(1,actor.bleed*.48),target);actor.bleed=Math.max(0,round1(actor.bleed-1));if(battle&&battle.verbose&&dot)logBattle(battle,`${actor.name} 的流血造成 ${dot} 点生命伤害，并减少 1 层流血。`)}}
+  }
+  function logBattle(battle,text){if(!battle||!battle.verbose)return;battle.logs.push({time:battle.elapsed,text});battle.logs=battle.logs.slice(-160)}
+  function removeOne(list,value){const index=list.indexOf(value);if(index>=0)list.splice(index,1);return index>=0}
+  function makeAutoBuild(arch,cardIds,weaponIds){
+    const cards=[...cardIds],weapons=[...weaponIds];const starterWeapon=`w_${arch}_0`;const orderedWeapons=[];const startIndex=weapons.indexOf(starterWeapon);if(startIndex>=0){orderedWeapons.push(weapons.splice(startIndex,1)[0])}orderedWeapons.push(...weapons.sort((a,b)=>(WEAPON_MAP[b].arch===arch)-(WEAPON_MAP[a].arch===arch)||WEAPON_MAP[b].index-WEAPON_MAP[a].index).slice(0,4));
+    const plans=[];orderedWeapons.slice(0,5).forEach((weaponId,index)=>{const weapon=WEAPON_MAP[weaponId];plans.push({weaponId,slots:Array(weapon.slots).fill(null)});if(index===0){const strategies=cards.filter(id=>CARD_MAP[id].kind==="strategy").sort((a,b)=>(CARD_MAP[b].arch===arch)-(CARD_MAP[a].arch===arch)||CARD_MAP[b].tier-CARD_MAP[a].tier);const strategy=strategies[0];if(strategy){plans[0].slots[0]=strategy;removeOne(cards,strategy)}const actions=cards.filter(id=>CARD_MAP[id].kind==="action").sort((a,b)=>(CARD_MAP[b].arch===arch)-(CARD_MAP[a].arch===arch)||CARD_MAP[b].tier-CARD_MAP[a].tier);for(let slot=1;slot<weapon.slots;slot++){const action=actions.shift()||cards[0];if(action){plans[0].slots[slot]=action;removeOne(cards,action)}}}else{const strategy=cards.filter(id=>CARD_MAP[id].kind==="strategy"&&CARD_MAP[id].arch===arch).sort((a,b)=>CARD_MAP[b].tier-CARD_MAP[a].tier)[0]||cards.find(id=>CARD_MAP[id].kind==="strategy");if(strategy){plans[index].slots[0]=strategy;removeOne(cards,strategy)}}});
+    return {arch,plans,deck:cards,allCards:[...cardIds],allWeapons:[...weaponIds]};
+  }
+  function legalShopOffers(round,random){return {actions:Array.from({length:5},()=>offerFromPool(ACTIONS,round,random)),strategies:Array.from({length:2},()=>offerFromPool(STRATEGIES,round,random)),weapons:Array.from({length:2},()=>offerFromPool(WEAPONS,round,random))}}
+  function generateCandidate(targetRound,arch,seed){
+    const random=seededRandom(seed);const starter=starterIds(arch);const cards=[...starter.actions,starter.strategy],weapons=[starter.weapon];let wallet=ECONOMY.startGold,totalIncome=ECONOMY.startGold,spent=0;const purchaseHistory=[];
+    for(let round=1;round<=targetRound;round++){
+      if(round>1){const income=roundIncome(round);wallet+=income;totalIncome+=income;purchaseHistory.push({type:"income",round,amount:income})}
+      let offers=legalShopOffers(round,random);const hasOwn=Object.values(offers).flat().some(def=>def.arch===arch);
+      if(!hasOwn&&round>=3&&wallet>=ECONOMY.refreshCost&&random()<.72){wallet-=ECONOMY.refreshCost;spent+=ECONOMY.refreshCost;purchaseHistory.push({type:"refresh",round,cost:ECONOMY.refreshCost});offers=legalShopOffers(round,random)}
+      const ownedStrategies=cards.filter(id=>CARD_MAP[id].kind==="strategy").length;const desiredStrategies=1+Math.floor(round/4);const desiredWeapons=1+Math.floor((round+1)/4);
+      const candidates=[...offers.actions,...offers.strategies,...offers.weapons].map((def,index)=>{let score=(def.arch===arch?10:0)+(def.kind==="action"?3:0)+RARITY_ORDER[def.rarity]*.35;if(def.kind==="strategy"&&ownedStrategies<desiredStrategies)score+=6;if(def.kind==="weapon"&&weapons.length<desiredWeapons)score+=7;if(def.kind==="weapon"&&weapons.length>=desiredWeapons)score-=4;if(def.kind==="strategy"&&ownedStrategies>=desiredStrategies)score-=2;return {def,index,score}}).sort((a,b)=>b.score-a.score||a.def.price-b.def.price);
+      const maxBuys=round<=2?1:round<=8?2:3;let bought=0;for(const item of candidates){if(bought>=maxBuys)break;const def=item.def;if(item.score<4||def.price>wallet)continue;if(def.arch!==arch&&random()<.7)continue;wallet-=def.price;spent+=def.price;bought++;if(def.kind==="weapon")weapons.push(def.id);else cards.push(def.id);purchaseHistory.push({type:"buy",round,kind:def.kind,id:def.id,cost:def.price,offerIndex:item.index})}
+      if(round<targetRound){const won=random()<.54;const reward=battleReward(round,won),interest=interestFor(wallet);wallet+=reward+interest;totalIncome+=reward+interest;purchaseHistory.push({type:"battle",round,won,reward,interest})}
+    }
+    const build=makeAutoBuild(arch,cards,weapons);const legal=wallet>=0&&spent<=totalIncome&&build.plans[0]?.slots.every(Boolean)&&purchaseHistory.filter(entry=>entry.type==="buy").every(entry=>entry.cost===(CARD_MAP[entry.id]||WEAPON_MAP[entry.id]).price);
+    return {arch,seed,wallet,totalIncome,spent,purchaseHistory,build,legal};
+  }
+  function simulateDps(build,round,seed,seconds=48){
+    const random=seededRandom(seed),player=createActor(build,"测算 Build",round,random),dummy=emptyActor("训练木人",round);player.hp=player.maxHp=99999;dummy.hp=dummy.maxHp=999999;dummy.infiniteHp=true;dummy.arch="guard";const battle={elapsed:0,verbose:false,logs:[],training:true};let incoming=0;
+    for(let time=0;time<seconds;time+=.1){battle.elapsed=round1(battle.elapsed+.1);updateActor(player,dummy,.1,battle);updateActor(dummy,player,.1,battle);incoming+=.1;if(incoming>=2){incoming-=2;rawDamage(player,5+round*.8,dummy)}}return round1(player.damageDone/seconds)
+  }
+  function median(values){const sorted=[...values].sort((a,b)=>a-b);return sorted[Math.floor(sorted.length/2)]||0}
+  function generateAllDatasets(){
+    const database=[];for(let round=1;round<=20;round++){const candidates=[];ARCHETYPES.forEach((arch,archIndex)=>{for(let variant=0;variant<16;variant++){const seed=20260710+round*10007+archIndex*907+variant*71;const candidate=generateCandidate(round,arch.id,seed);candidate.dps=simulateDps(candidate.build,round,seed^0xA531,42);candidates.push(candidate)}});const target=median(candidates.map(item=>item.dps));const selected=[];ARCHETYPES.forEach(arch=>selected.push(...candidates.filter(item=>item.arch===arch.id).sort((a,b)=>Math.abs(a.dps-target)-Math.abs(b.dps-target)).slice(0,2)));database.push(selected)}return database
+  }
+
+  function battleLogTime(seconds){const m=Math.floor(seconds/60),s=Math.floor(seconds%60),t=Math.floor(seconds*10)%10;return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}.${t}`}
+  function startBattle(replayData=null){
+    const playerBuild=replayData?.playerBuild||buildSnapshot();const playerDps=simulateDps(playerBuild,state.round,0xC0DE+state.round,42);let opponent=replayData?.opponent;
+    if(!opponent){const nearest=[...DATASETS[state.round-1]].sort((a,b)=>Math.abs(a.dps-playerDps)-Math.abs(b.dps-playerDps)).slice(0,3);opponent=randomItem(nearest)}const seed=replayData?.seed||Math.floor(Math.random()*0xffffffff);const replay=Boolean(replayData);
+    const battle={round:state.round,player:createActor(playerBuild,"玩家",state.round,seededRandom(seed)),enemy:createActor(opponent.build,`R${state.round}·${ARCH[opponent.arch].name}`,state.round,seededRandom(seed^0x9E3779B9)),playerBuild,opponent,seed,replay,elapsed:0,accumulator:0,logs:[],verbose:true,ended:false,lastFrame:performance.now(),lastRender:0,interest:interestFor(state.gold)};
+    state.battle=battle;state.speed=1;document.querySelectorAll("[data-speed]").forEach(button=>button.classList.toggle("active",Number(button.dataset.speed)===1));document.querySelector("#resultOverlay").classList.remove("open");logBattle(battle,`匹配到 ${ARCH[opponent.arch].name} Build：生成 DPS ${opponent.dps}，购买记录 ${opponent.purchaseHistory.filter(e=>e.type==="buy").length} 条，合法性已通过。`);renderBattle();showScreen("battleScreen");requestAnimationFrame(battleFrame)
+  }
+  function stepBattle(dt){const battle=state.battle;if(!battle||battle.ended)return;battle.elapsed=round1(battle.elapsed+dt);updateActor(battle.player,battle.enemy,dt,battle);if(battle.enemy.hp>0)updateActor(battle.enemy,battle.player,dt,battle);if(battle.player.hp<=0||battle.enemy.hp<=0||battle.elapsed>=90){let won=battle.enemy.hp<=0&&battle.player.hp>0;if(battle.elapsed>=90&&battle.player.hp>0&&battle.enemy.hp>0){const playerScore=battle.player.hp/battle.player.maxHp+battle.player.block*.001+battle.player.damageDone*.0003;const enemyScore=battle.enemy.hp/battle.enemy.maxHp+battle.enemy.block*.001+battle.enemy.damageDone*.0003;won=playerScore>=enemyScore}resolveBattle(won)}}
+  function battleFrame(now){const battle=state.battle;if(!battle||battle.ended)return;const realDt=Math.min(.08,(now-battle.lastFrame)/1000);battle.lastFrame=now;battle.accumulator+=realDt*state.speed;let steps=0;while(battle.accumulator>=.05&&!battle.ended&&steps<80){stepBattle(.05);battle.accumulator-=.05;steps++}if(now-battle.lastRender>90){renderBattle();battle.lastRender=now}if(!battle.ended)requestAnimationFrame(battleFrame)}
+  function renderCombatant(actor){const hpPct=clamp(actor.hp/actor.maxHp*100,0,100);return `<div class="combatant-head"><h2>${actor.name}</h2><p>${ARCH[actor.arch]?.name||"训练目标"}</p><div class="hpbar"><div style="width:${hpPct}%"></div></div><p>${round1(actor.hp)} / ${actor.maxHp} HP</p></div><div class="resource-grid"><div class="resource"><b>${round1(actor.block)}</b>格挡</div><div class="resource"><b>${round1(actor.combo)}</b>连段</div><div class="resource"><b>${round1(actor.charge)}</b>蓄力</div><div class="resource"><b>${round1(actor.bleed)}</b>流血</div><div class="resource"><b>${round1(actor.bloodFury)}</b>血怒</div><div class="resource"><b>${actor.pending.length}</b>待封装</div></div>`}
+  function renderLiveChains(actor){const html=actor.sealed.map((chain,index)=>{const weapon=WEAPON_MAP[chain.weaponId];return `<section class="live-chain ${index===actor.sealed.length-1?"new":""}"><div class="live-chain-head"><span>链 ${chain.planIndex+1} · ${weapon.name}</span><span>耗时 ×${chain.slow} · 锻造 ${chain.forge}</span></div><div class="live-slots">${chain.slots.map((id,slot)=>{const def=CARD_MAP[id];return `<div class="live-card ${def.kind} ${chain.phase==="card"&&chain.index===slot?"active":""}"><b>${def.name}</b>${def.kind==="strategy"?"策略":"行动"} · ${def.time}s</div>`}).join("")}<div class="live-card ${chain.phase==="weapon"?"active":""}"><b>${weapon.name}</b>武器效果 · ${weapon.time}s</div></div></section>`}).join("");return html+`<div class="pending-line">待封装 FIFO：${actor.pending.length?actor.pending.map(id=>CARD_MAP[id].name).join(" → "):"空"} · 抽牌堆 ${actor.deck.length} · 弃牌堆 ${actor.discard.length}</div>`}
+  function renderBattle(){const battle=state.battle;if(!battle)return;document.querySelector("#battleTitle").textContent=`第 ${battle.round} 轮战斗${battle.replay?" · 回放":""}`;document.querySelector("#matchText").textContent=`${ARCH[battle.opponent.arch].name} · 数据 DPS ${battle.opponent.dps} · 合法 Build`;document.querySelector("#battleTime").textContent=`${battle.elapsed.toFixed(1)}s`;document.querySelector("#playerDps").textContent=battle.elapsed?round1(battle.player.damageDone/battle.elapsed):0;document.querySelector("#enemyDps").textContent=battle.elapsed?round1(battle.enemy.damageDone/battle.elapsed):0;document.querySelector("#playerPanel").innerHTML=renderCombatant(battle.player);document.querySelector("#enemyPanel").innerHTML=renderCombatant(battle.enemy);document.querySelector("#playerChains").innerHTML=renderLiveChains(battle.player);document.querySelector("#enemyChains").innerHTML=renderLiveChains(battle.enemy);document.querySelector("#battleState").textContent=battle.ended?(battle.player.hp>0?"战斗结束":"玩家倒下"):"牌链正在循环";const log=document.querySelector("#battleLog"),html=battle.logs.map(entry=>`<p><span class="time">${battleLogTime(entry.time)}</span>${entry.text}</p>`).join("");if(log.dataset.rawHtml!==html){log.innerHTML=html;log.dataset.rawHtml=html;log.scrollTop=log.scrollHeight}applyKeywordMarkup(document.querySelector("#battleScreen"))}
+  function resolveBattle(won){const battle=state.battle;if(!battle||battle.ended)return;battle.ended=true;logBattle(battle,won?"对手生命归零，玩家获胜。":"玩家生命归零或超时评分落后，本轮失败。");renderBattle();let reward=0,interest=0;if(!battle.replay){if(won)state.wins++;else state.losses++;reward=battleReward(state.round,won);interest=battle.interest;state.gold+=reward+interest;state.lastReplay={playerBuild:battle.playerBuild,opponent:battle.opponent,seed:battle.seed};battle.resultWon=won}else{won=battle.resultWon??won}
+    const runEnded=state.losses>=3||state.round>=20;document.querySelector("#resultTitle").textContent=battle.replay?`回放结束 · ${won?"胜利":"失败"}`:runEnded?`${won?"本轮胜利":"本轮失败"} · 本局结束`:won?"战斗胜利":"战斗失败";document.querySelector("#resultText").textContent=battle.replay?"回放不会重复结算金币、胜负或对战数据。":`基础奖励 ${reward}c，保留金币产生利息 ${interest}c。第 ${state.round} 轮失败奖励固定比胜利奖励多 ${battleReward(state.round,false)-battleReward(state.round,true)}c。`;document.querySelector("#resultStats").innerHTML=`<div class="result-stat"><b>${round1(battle.player.damageDone/Math.max(1,battle.elapsed))}</b>玩家实战 DPS</div><div class="result-stat"><b>${round1(battle.enemy.damageDone/Math.max(1,battle.elapsed))}</b>对手实战 DPS</div><div class="result-stat"><b>${battle.player.sealed.length} / ${battle.enemy.sealed.length}</b>双方封装链数</div><div class="result-stat"><b>${state.gold}c</b>结算后金币</div>`;document.querySelector("#replayBtn").classList.toggle("hidden",battle.replay||!state.lastReplay);document.querySelector("#continueBtn").textContent=runEnded?"返回起点":"进入下一轮";document.querySelector("#continueBtn").dataset.ended=runEnded?"1":"0";document.querySelector("#resultOverlay").classList.add("open");applyKeywordMarkup(document.querySelector("#resultOverlay"))
+  }
+  function continueRun(){const ended=document.querySelector("#continueBtn").dataset.ended==="1";document.querySelector("#resultOverlay").classList.remove("open");if(ended){showScreen("startScreen");return}state.round+=1;state.gold+=roundIncome(state.round);state.offers=generateOffers();state.battle=null;renderShop();showScreen("shopScreen")}
+  function buildAudit(database){const phases=[[0,6],[6,13],[13,20]].map(([start,end])=>{const sums=Object.fromEntries(ARCHETYPES.map(a=>[a.id,[]]));database.slice(start,end).flat().forEach(row=>sums[row.arch].push(row.dps));const averages=Object.fromEntries(Object.entries(sums).map(([id,values])=>[id,round1(values.reduce((a,b)=>a+b,0)/values.length)]));const ranking=Object.entries(averages).sort((a,b)=>b[1]-a[1]),gap=(ranking[0][1]-ranking[1][1])/Math.max(.1,ranking[1][1]);const winner=gap>=.05?ranking[0][0]:"balanced";return {start:start+1,end,winner,gapPercent:round1(gap*100),averages}});const dominant=ARCHETYPES.some(arch=>phases.every(phase=>phase.winner===arch.id));return {counts:{actions:ACTIONS.length,strategies:STRATEGIES.length,weapons:WEAPONS.length,rounds:database.length,records:database.flat().length},allLegal:database.flat().every(row=>row.legal),phaseLeaders:phases,noFullGameDominance:!dominant}}
+
+  document.querySelector("#systemGrid").innerHTML=ARCHETYPES.map(arch=>`<button class="system-card" data-select-arch="${arch.id}"><span class="system-icon">${arch.icon}</span><h2>${arch.name}</h2><p>${arch.description}</p><span class="curve">${arch.curve}</span></button>`).join("");
+  applyKeywordMarkup(document.querySelector("#startScreen"));
+  document.querySelector("#systemGrid").addEventListener("click",event=>{const button=event.target.closest("[data-select-arch]");if(!button)return;state.selectedArch=button.dataset.selectArch;document.querySelectorAll("[data-select-arch]").forEach(el=>el.classList.toggle("selected",el===button));document.querySelector("#startBtn").disabled=false;document.querySelector("#startBtn").textContent=`以「${ARCH[state.selectedArch].name}」开始`});
+  document.querySelector("#startBtn").addEventListener("click",()=>state.selectedArch&&resetRun(state.selectedArch));
+  document.addEventListener("click",event=>{const buy=event.target.closest("[data-buy-offer]");if(buy)buyOffer(buy.dataset.buyOffer)});
+  document.querySelector("#refreshBtn").addEventListener("click",refreshShop);document.querySelector("#autoArrangeBtn").addEventListener("click",autoArrange);document.querySelector("#battleBtn").addEventListener("click",()=>startBattle());
+  document.querySelector("#dataToggleBtn").addEventListener("click",()=>{document.querySelector("#dataLab").classList.toggle("hidden");document.querySelector("#dataToggleBtn").textContent=document.querySelector("#dataLab").classList.contains("hidden")?"查看本轮 10 组数据":"收起对战数据"});
+  document.querySelectorAll("[data-speed]").forEach(button=>button.addEventListener("click",()=>{state.speed=Number(button.dataset.speed);document.querySelectorAll("[data-speed]").forEach(el=>el.classList.toggle("active",el===button))}));
+  document.querySelector("#replayBtn").addEventListener("click",()=>state.lastReplay&&startBattle(state.lastReplay));document.querySelector("#continueBtn").addEventListener("click",continueRun);
+  document.addEventListener("mouseover",event=>{const term=event.target.closest(".keyword-term");if(term)showKeywordTooltip(term.dataset.keyword,event.clientX,event.clientY)});
+  document.addEventListener("mousemove",event=>{if(document.querySelector("#keywordTooltip").classList.contains("open"))positionKeywordTooltip(event.clientX,event.clientY)});
+  document.addEventListener("mouseout",event=>{const term=event.target.closest(".keyword-term");if(term&&!event.relatedTarget?.closest?.(".keyword-term"))hideKeywordTooltip()});
+  document.addEventListener("focusin",event=>{const term=event.target.closest(".keyword-term");if(!term)return;const rect=term.getBoundingClientRect();showKeywordTooltip(term.dataset.keyword,rect.left+rect.width/2,rect.bottom)});
+  document.addEventListener("focusout",event=>{if(event.target.closest(".keyword-term"))hideKeywordTooltip()});window.addEventListener("scroll",hideKeywordTooltip,{passive:true});
+  DATASETS=generateAllDatasets();const AUDIT=buildAudit(DATASETS);window.V2_DEBUG={counts:AUDIT.counts,audit:AUDIT,datasets:DATASETS,actions:ACTIONS,strategies:STRATEGIES,weapons:WEAPONS,simulateDps,buildSnapshot,state};
+  </script>
+</body>
+</html>
