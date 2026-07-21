@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-ark-theme="endfield" data-ark-depth="complex" data-ef-page="library">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -201,8 +201,18 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="../endfield-ui.css">
 </head>
-<body>
+<body class="ef-library">
+  <a class="ef-skip" href="#main">跳至主要内容</a>
+  <aside class="ef-rail" aria-label="系统导航">
+    <a class="ef-rail-mark" href="../index.html" aria-label="Draw 首页">D//</a>
+    <nav class="ef-rail-nav">
+      <a class="ef-rail-link" href="index.html" aria-current="page"><b>01</b>战斗系统</a>
+      <a class="ef-rail-link" href="../LevelSystem/index.html"><b>02</b>关卡系统</a>
+    </nav>
+    <div class="ef-rail-meta">FIGHT<br>ARCHIVE<br>03 VER</div>
+  </aside>
   <div class="page">
     <header>
       <div>
@@ -215,7 +225,7 @@
       </div>
     </header>
 
-    <main aria-label="战斗系统版本列表">
+    <main id="main" aria-label="战斗系统版本列表">
       <a class="version-card" href="Draw_Fight_002/index.html">
         <div>
           <p class="eyebrow">2026.06.09 · Fight 002</p>
@@ -252,7 +262,7 @@
         </div>
       </a>
 
-      <a class="version-card" href="Draw_Fight_004/index.html">
+      <a class="version-card" data-current="true" href="Draw_Fight_004/index.html">
         <div>
           <p class="eyebrow">2026.06.17 · Fight 004</p>
           <h2>抽牌策略 + 自动封装牌链</h2>

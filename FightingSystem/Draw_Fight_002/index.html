@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-ark-theme="endfield" data-ark-depth="complex" data-ef-page="fight">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -769,23 +769,25 @@
         .log { max-height: 150px; border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 10px; }
       }
     </style>
+    <link rel="stylesheet" href="../../endfield-ui.css">
   </head>
   <body>
     <div class="app">
       <header class="topbar">
+        <a class="ef-back" href="../index.html" aria-label="返回战斗版本库">‹</a>
         <div class="title">
           <h1>Fight 002</h1>
           <span id="battleSeed">武器槽位 + 手动打牌</span>
         </div>
         <div class="controls">
-          <button class="speed active" data-speed="0.1">0.1x</button>
-          <button class="speed" data-speed="0.5">0.5x</button>
-          <button class="speed" data-speed="1">1x</button>
-          <button class="speed" data-speed="2">2x</button>
-          <button class="speed" data-speed="3">3x</button>
-          <button class="speed" data-speed="5">5x</button>
-          <button class="speed" data-mode="turn">回合制</button>
-          <button id="pauseBtn">暂停</button>
+          <button class="speed active" data-speed="0.1" aria-pressed="true">0.1x</button>
+          <button class="speed" data-speed="0.5" aria-pressed="false">0.5x</button>
+          <button class="speed" data-speed="1" aria-pressed="false">1x</button>
+          <button class="speed" data-speed="2" aria-pressed="false">2x</button>
+          <button class="speed" data-speed="3" aria-pressed="false">3x</button>
+          <button class="speed" data-speed="5" aria-pressed="false">5x</button>
+          <button class="speed" data-mode="turn" aria-pressed="false">回合制</button>
+          <button id="pauseBtn" aria-pressed="false">暂停</button>
           <button id="importBtn" class="ghost">导入数据</button>
           <button id="newBattleBtn" class="primary">新战斗</button>
           <span class="import-note" id="importState">内置数据</span>
@@ -1066,6 +1068,7 @@
         state.log = [];
         $("winner").classList.remove("show");
         $("pauseBtn").classList.remove("active");
+        $("pauseBtn").setAttribute("aria-pressed", "false");
         $("pauseBtn").textContent = "暂停";
         log(`第 ${state.battleNo} 场：${player.character.Name} VS ${enemy.character.Name}`);
         state.battleNo += 1;
@@ -1877,13 +1880,18 @@
           state.mode = "realtime";
           state.speed = Number(button.dataset.speed);
         }
-        document.querySelectorAll(".speed").forEach((item) => item.classList.toggle("active", item === button));
+        document.querySelectorAll(".speed").forEach((item) => {
+          const active = item === button;
+          item.classList.toggle("active", active);
+          item.setAttribute("aria-pressed", String(active));
+        });
         render();
       }
 
       function togglePause() {
         state.paused = !state.paused;
         $("pauseBtn").classList.toggle("active", state.paused);
+        $("pauseBtn").setAttribute("aria-pressed", String(state.paused));
         $("pauseBtn").textContent = state.paused ? "继续" : "暂停";
         render();
       }

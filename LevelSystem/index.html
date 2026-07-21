@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-ark-theme="endfield" data-ark-depth="complex" data-ef-page="library">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -90,8 +90,18 @@
       .count { width: fit-content; margin-top: 18px; }
     }
   </style>
+  <link rel="stylesheet" href="../endfield-ui.css">
 </head>
-<body>
+<body class="ef-library">
+  <a class="ef-skip" href="#main">跳至主要内容</a>
+  <aside class="ef-rail" aria-label="系统导航">
+    <a class="ef-rail-mark" href="../index.html" aria-label="Draw 首页">D//</a>
+    <nav class="ef-rail-nav">
+      <a class="ef-rail-link" href="../FightingSystem/index.html"><b>01</b>战斗系统</a>
+      <a class="ef-rail-link" href="index.html" aria-current="page"><b>02</b>关卡系统</a>
+    </nav>
+    <div class="ef-rail-meta">LEVEL<br>ARCHIVE<br>02 VER</div>
+  </aside>
   <div class="page">
     <header>
       <div>
@@ -101,7 +111,7 @@
       </div>
       <div class="count"><strong>2</strong>可玩版本</div>
     </header>
-    <main aria-label="关卡系统版本列表">
+    <main id="main" aria-label="关卡系统版本列表">
       <a class="version-card" href="Level_001/index.html">
         <div>
           <p class="eyebrow">2026.06.24 · Level 001</p>
@@ -116,7 +126,7 @@
         </div>
         <div class="open-row"><span>开始 Level 001</span><span class="arrow" aria-hidden="true">›</span></div>
       </a>
-      <a class="version-card" href="Level_002/index.html">
+      <a class="version-card" data-current="true" href="Level_002/index.html">
         <div>
           <p class="eyebrow">2026.07.10 · Level 002</p>
           <h2>V2 牌链实验关卡</h2>

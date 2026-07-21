@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-ark-theme="endfield" data-ark-depth="complex" data-ef-page="fight">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -984,24 +984,26 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="../../endfield-ui.css">
 </head>
 <body>
   <div class="app">
     <header class="topbar">
+      <a class="ef-back" href="../index.html" aria-label="返回战斗版本库">‹</a>
       <div class="title">
         <h1>Fight 003</h1>
         <span class="subtitle">牌链封装 + 工作区循环</span>
         <span class="battle-state" id="battleState">回合制 · 运行中</span>
       </div>
       <div class="controls" aria-label="战斗控制">
-        <button data-speed="0.1">0.1x</button>
-        <button data-speed="0.5">0.5x</button>
-        <button data-speed="1">1x</button>
-        <button data-speed="2">2x</button>
-        <button data-speed="3">3x</button>
-        <button data-speed="5">5x</button>
-        <button id="turnModeBtn" class="active">回合制</button>
-        <button id="pauseBtn">暂停</button>
+        <button data-speed="0.1" aria-pressed="false">0.1x</button>
+        <button data-speed="0.5" aria-pressed="false">0.5x</button>
+        <button data-speed="1" aria-pressed="false">1x</button>
+        <button data-speed="2" aria-pressed="false">2x</button>
+        <button data-speed="3" aria-pressed="false">3x</button>
+        <button data-speed="5" aria-pressed="false">5x</button>
+        <button id="turnModeBtn" class="active" aria-pressed="true">回合制</button>
+        <button id="pauseBtn" aria-pressed="false">暂停</button>
         <button id="newBattleBtn" class="danger">新战斗</button>
       </div>
     </header>
@@ -1640,20 +1642,33 @@
           state.paused = false;
           state.last = performance.now();
           $("pauseBtn").textContent = "暂停";
-          document.querySelectorAll("[data-speed]").forEach((item) => item.classList.toggle("active", item === btn));
+          document.querySelectorAll("[data-speed]").forEach((item) => {
+            const active = item === btn;
+            item.classList.toggle("active", active);
+            item.setAttribute("aria-pressed", String(active));
+          });
           $("turnModeBtn").classList.remove("active");
+          $("turnModeBtn").setAttribute("aria-pressed", "false");
+          $("pauseBtn").classList.remove("active");
+          $("pauseBtn").setAttribute("aria-pressed", "false");
         });
       });
       $("turnModeBtn").addEventListener("click", () => {
         state.mode = "turn";
         state.speed = 1;
         state.last = performance.now();
-        document.querySelectorAll("[data-speed]").forEach((item) => item.classList.remove("active"));
+        document.querySelectorAll("[data-speed]").forEach((item) => {
+          item.classList.remove("active");
+          item.setAttribute("aria-pressed", "false");
+        });
         $("turnModeBtn").classList.add("active");
+        $("turnModeBtn").setAttribute("aria-pressed", "true");
       });
       $("pauseBtn").addEventListener("click", () => {
         state.paused = !state.paused;
         $("pauseBtn").textContent = state.paused ? "继续" : "暂停";
+        $("pauseBtn").classList.toggle("active", state.paused);
+        $("pauseBtn").setAttribute("aria-pressed", String(state.paused));
       });
       $("newBattleBtn").addEventListener("click", startBattle);
       $("winnerNew").addEventListener("click", () => {

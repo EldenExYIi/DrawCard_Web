@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-ark-theme="endfield" data-ark-depth="complex" data-ef-page="fight">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -696,10 +696,12 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="../../endfield-ui.css">
 </head>
 <body>
   <div class="app">
     <header class="topbar">
+      <a class="ef-back" href="../index.html" aria-label="返回战斗版本库">‹</a>
       <div class="title">
         <h1>Fight 004</h1>
         <div class="subtitle">抽牌策略 + 自动封装牌链</div>
@@ -1377,7 +1379,7 @@
       if (!root) return;
       root.innerHTML = actor.character.StrategyIDs.map(strategyId => {
         const strategy = strategyById[strategyId];
-        return `<button data-strategy="${strategyId}" class="${actor.strategyId === strategyId ? "active" : ""}" title="${escapeHtml(strategy.Description)}">${escapeHtml(strategy.Name)}</button>`;
+        return `<button data-strategy="${strategyId}" class="${actor.strategyId === strategyId ? "active" : ""}" aria-pressed="${actor.strategyId === strategyId}" title="${escapeHtml(strategy.Description)}">${escapeHtml(strategy.Name)}</button>`;
       }).join("");
       root.querySelectorAll("[data-strategy]").forEach(button => {
         button.addEventListener("click", () => {
@@ -1393,11 +1395,14 @@
     function renderControls() {
       document.querySelectorAll("[data-speed]").forEach(button => {
         const speed = Number(button.dataset.speed);
-        button.classList.toggle("active", !state.paused && state.speed === speed);
+        const active = !state.paused && state.speed === speed;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
       });
       const pauseBtn = document.getElementById("pauseBtn");
       pauseBtn.textContent = state.paused ? "继续" : "暂停";
       pauseBtn.classList.toggle("active", state.paused);
+      pauseBtn.setAttribute("aria-pressed", String(state.paused));
       const battleState = document.getElementById("battleState");
       battleState.textContent = state.ended ? `${state.winner} 获胜` : `${state.speed}x · ${state.paused ? "暂停" : "运行中"}`;
       battleState.classList.toggle("ended", state.ended);

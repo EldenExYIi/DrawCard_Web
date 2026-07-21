@@ -1,0 +1,1032 @@
+:root {
+  --ef-ink: #191919;
+  --ef-ink-2: #242424;
+  --ef-paper: #f2f2f0;
+  --ef-paper-2: #e8e8e4;
+  --ef-white: #ffffff;
+  --ef-signal: #fffa00;
+  --ef-state: #00ffa2;
+  --ef-muted: #767676;
+  --ef-rule: rgba(25, 25, 25, .2);
+  --ef-rule-dark: rgba(255, 255, 255, .2);
+  --ef-display: "Arial Narrow", "Roboto Condensed", "DIN Condensed", "PingFang SC", sans-serif;
+  --ef-ui: "Space Grotesk", "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --ef-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --ef-direct: 240ms;
+  --ef-reveal: 650ms;
+  --ef-ease: cubic-bezier(.22, .8, .2, 1);
+  --ef-grid: rgba(25, 25, 25, .08);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html[data-ark-theme="endfield"] {
+  min-width: 320px;
+  background: var(--ef-paper);
+  font-family: var(--ef-ui);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[data-ark-theme="endfield"] body {
+  color: var(--ef-ink);
+  font-family: var(--ef-ui);
+}
+
+html[data-ark-theme="endfield"] button,
+html[data-ark-theme="endfield"] a { font: inherit; }
+
+html[data-ark-theme="endfield"] :is(button, a, [tabindex]):focus-visible {
+  outline: 2px solid var(--ef-signal) !important;
+  outline-offset: 3px;
+}
+
+html[data-ark-theme="endfield"] ::selection {
+  background: var(--ef-signal);
+  color: var(--ef-ink);
+}
+
+html[data-ark-theme="endfield"] ::-webkit-scrollbar { width: 9px; height: 9px; }
+html[data-ark-theme="endfield"] ::-webkit-scrollbar-track { background: var(--ef-paper-2); }
+html[data-ark-theme="endfield"] ::-webkit-scrollbar-thumb { background: #777; border: 2px solid var(--ef-paper-2); }
+
+.ef-skip {
+  position: fixed;
+  inset: .75rem auto auto .75rem;
+  z-index: 1000;
+  padding: .7rem 1rem;
+  background: var(--ef-signal);
+  color: var(--ef-ink);
+  transform: translateY(-160%);
+  transition: transform var(--ef-direct);
+}
+.ef-skip:focus { transform: none; }
+
+/* Library shell: local depth 2 inside the complex system. */
+body.ef-library {
+  --bg: var(--ef-paper);
+  --panel: var(--ef-white);
+  --text: var(--ef-ink);
+  --ink: var(--ef-ink);
+  --muted: var(--ef-muted);
+  --line: var(--ef-rule);
+  --accent: var(--ef-ink);
+  --accent-strong: var(--ef-ink);
+  --accent-soft: #e4e4df;
+  --battle: var(--ef-ink);
+  --battle-soft: #e6e6e2;
+  --level: var(--ef-ink);
+  --level-soft: #e6e6e2;
+  --shadow: none;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  margin: 0;
+  background: var(--ef-paper);
+  overflow-x: hidden;
+}
+
+.ef-rail {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 40;
+  block-size: 100svh;
+  display: flex;
+  flex-direction: column;
+  border-inline-end: 1px solid var(--ef-rule);
+  background: #e6e6e2;
+}
+
+.ef-rail-mark {
+  min-height: 72px;
+  display: grid;
+  place-items: center;
+  border-block-end: 1px solid var(--ef-rule);
+  background: var(--ef-ink);
+  color: var(--ef-signal);
+  text-decoration: none;
+  font-family: var(--ef-display);
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: -.08em;
+}
+
+.ef-rail-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.ef-rail-link {
+  position: relative;
+  min-height: 124px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .7rem .45rem;
+  border-block-end: 1px solid var(--ef-rule);
+  color: #5c5c5c;
+  text-decoration: none;
+  writing-mode: vertical-rl;
+  font-family: var(--ef-mono);
+  font-size: .62rem;
+  letter-spacing: .1em;
+}
+
+.ef-rail-link::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--ef-signal);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--ef-direct) var(--ef-ease);
+}
+.ef-rail-link:hover,
+.ef-rail-link[aria-current="page"] { background: var(--ef-ink); color: #fff; }
+.ef-rail-link:hover::before,
+.ef-rail-link[aria-current="page"]::before { transform: scaleY(1); }
+.ef-rail-link b { color: var(--ef-signal); writing-mode: horizontal-tb; font-weight: 700; }
+
+.ef-rail-meta {
+  margin-top: auto;
+  padding: 1rem .5rem;
+  color: #777;
+  font-family: var(--ef-mono);
+  font-size: .55rem;
+  line-height: 1.7;
+  letter-spacing: .06em;
+}
+
+body.ef-library .page {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background:
+    linear-gradient(var(--ef-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ef-grid) 1px, transparent 1px),
+    var(--ef-paper);
+  background-size: 72px 72px;
+}
+
+body.ef-library .page::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0 0 auto auto;
+  width: min(38vw, 540px);
+  height: 330px;
+  background: var(--ef-signal);
+  clip-path: polygon(35% 0, 100% 0, 100% 100%, 0 100%);
+  opacity: .8;
+  pointer-events: none;
+}
+
+body.ef-library header {
+  position: relative;
+  z-index: 1;
+  min-height: 360px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 280px);
+  align-items: end;
+  gap: clamp(2rem, 7vw, 7rem);
+  padding: clamp(4rem, 8vw, 7.5rem) clamp(1.5rem, 6vw, 6.5rem) 3.25rem;
+  border: 0;
+  border-block-end: 1px solid var(--ef-rule);
+  background: transparent;
+}
+
+body.ef-library header > div:first-child { max-width: 820px; }
+body.ef-library header > div:first-child::before {
+  content: "SYSTEM DIRECTORY / 系统目录";
+  display: block;
+  margin-block-end: 1rem;
+  font-family: var(--ef-mono);
+  font-size: .7rem;
+  letter-spacing: .14em;
+}
+
+body.ef-library h1 {
+  margin: 0 0 1rem;
+  font-family: var(--ef-display);
+  font-size: clamp(3.2rem, 7vw, 7.8rem);
+  font-weight: 900;
+  line-height: .84;
+  letter-spacing: -.065em;
+  text-transform: uppercase;
+}
+
+body.ef-library .subtitle {
+  max-width: 720px;
+  margin: 0;
+  color: #575757;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+body.ef-library :is(.build-mark, .count) {
+  position: relative;
+  align-self: end;
+  width: 100%;
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 1px solid var(--ef-ink);
+  border-radius: 0;
+  background: var(--ef-ink);
+  color: #fff;
+  box-shadow: 12px 12px 0 var(--ef-signal);
+  font-family: var(--ef-mono);
+  font-size: .68rem;
+  letter-spacing: .08em;
+}
+
+body.ef-library :is(.build-mark, .count)::before {
+  content: "READY";
+  color: var(--ef-state);
+  font-size: .6rem;
+}
+
+body.ef-library :is(.build-mark, .count) strong {
+  display: block;
+  margin: 0;
+  color: #fff;
+  font-family: var(--ef-display);
+  font-size: 3.75rem;
+  line-height: .75;
+}
+
+body.ef-library main {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px 0 0;
+  background: var(--ef-rule);
+}
+
+body.ef-library :is(.system-card, .version-card, .empty-card) {
+  position: relative;
+  min-height: 390px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: clamp(1.75rem, 4vw, 4rem);
+  border: 0;
+  border-radius: 0;
+  background: var(--ef-white);
+  color: var(--ef-ink);
+  box-shadow: none;
+  text-decoration: none;
+  overflow: hidden;
+  transition: color var(--ef-direct), background var(--ef-direct), transform var(--ef-direct);
+}
+
+body.ef-library :is(.system-card, .version-card)::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 78px;
+  height: 7px;
+  background: var(--ef-signal);
+  transform: scaleX(.34);
+  transform-origin: left;
+  transition: transform var(--ef-direct) var(--ef-ease);
+}
+
+body.ef-library :is(.system-card, .version-card)::after {
+  content: "↗";
+  position: absolute;
+  inset: 1.2rem 1.2rem auto auto;
+  font-family: var(--ef-mono);
+  font-size: 1rem;
+}
+
+body.ef-library :is(.system-card, .version-card):focus-visible {
+  z-index: 3;
+  transform: none;
+  border-color: transparent;
+  background: var(--ef-ink);
+  color: #fff;
+  box-shadow: none;
+  outline-offset: -4px !important;
+}
+
+body.ef-library :is(.system-card, .version-card):focus-visible::before { transform: scaleX(1); }
+
+@media (hover: hover) and (pointer: fine) {
+  body.ef-library :is(.system-card, .version-card):hover {
+    z-index: 3;
+    transform: none;
+    border-color: transparent;
+    background: var(--ef-ink);
+    color: #fff;
+    box-shadow: none;
+  }
+  body.ef-library :is(.system-card, .version-card):hover::before { transform: scaleX(1); }
+}
+
+body.ef-library .version-card[data-current="true"] {
+  background: #f8f8f5;
+  color: var(--ef-ink);
+  box-shadow: inset 5px 0 var(--ef-signal);
+}
+body.ef-library .version-card[data-current="true"]::before { transform: scaleX(1); }
+body.ef-library .version-card[data-current="true"]::after {
+  content: "CURRENT / 当前版本";
+  inset: 1rem 1rem auto auto;
+  padding: .35rem .5rem;
+  background: var(--ef-signal);
+  color: var(--ef-ink);
+  font-size: .58rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+@media (hover: hover) and (pointer: fine) {
+  body.ef-library .version-card[data-current="true"]:hover {
+    background: var(--ef-ink);
+    color: #fff;
+    box-shadow: inset 5px 0 var(--ef-signal);
+  }
+}
+
+body.ef-library .icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  margin: 0 0 2rem;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent !important;
+  font-size: 1.7rem;
+  clip-path: polygon(0 0, calc(100% - 13px) 0, 100% 13px, 100% 100%, 0 100%);
+}
+
+body.ef-library .eyebrow {
+  margin: 0 0 .8rem;
+  color: inherit;
+  opacity: .62;
+  font-family: var(--ef-mono);
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+body.ef-library h2 {
+  max-width: 720px;
+  margin: 0 0 1rem;
+  font-family: var(--ef-display);
+  font-size: clamp(2rem, 4vw, 4.6rem);
+  font-weight: 900;
+  line-height: .92;
+  letter-spacing: -.045em;
+}
+
+body.ef-library .description {
+  max-width: 650px;
+  margin: 0;
+  color: inherit;
+  opacity: .7;
+  font-size: .92rem;
+  line-height: 1.65;
+}
+
+body.ef-library :is(.meta-row, .tags) { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1.5rem; }
+body.ef-library :is(.pill, .tag) {
+  padding: .35rem .55rem;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  opacity: .68;
+  font-family: var(--ef-mono);
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+}
+
+body.ef-library .open-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: inherit;
+  font-weight: 700;
+}
+
+body.ef-library .arrow {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 0;
+  background: var(--ef-signal) !important;
+  color: var(--ef-ink);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+}
+
+body.ef-library .empty-card {
+  min-height: 240px;
+  justify-content: end;
+  background: #dadad5;
+  color: #686868;
+}
+body.ef-library .back { display: inline-block; margin-block-end: 1rem; color: var(--ef-ink); font-family: var(--ef-mono); font-size: .7rem; text-decoration: none; }
+
+/* Game surfaces: full component coverage with content-preserving overrides. */
+html[data-ef-page="fight"] {
+  --bg: var(--ef-paper);
+  --panel: var(--ef-white);
+  --ink: var(--ef-ink);
+  --muted: var(--ef-muted);
+  --line: var(--ef-rule);
+  --accent: var(--ef-signal);
+  --accent-2: var(--ef-state);
+  --danger: var(--ef-signal);
+  --blue: var(--ef-signal);
+  --green: var(--ef-state);
+  --yellow: var(--ef-signal);
+  --orange: var(--ef-signal);
+  --dark: var(--ef-ink);
+  --card: var(--ef-white);
+  --slot: #e9e9e5;
+  --slot-line: #8e8e88;
+  --enemy: var(--ef-ink-2);
+  --player: #4b4b48;
+  --shadow: none;
+}
+
+html[data-ef-page="fight"] :is(html, body) {
+  background: var(--ef-paper);
+  color: var(--ef-ink);
+  font-family: var(--ef-ui);
+}
+
+html[data-ef-page="fight"] .app {
+  background:
+    linear-gradient(var(--ef-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ef-grid) 1px, transparent 1px),
+    var(--ef-paper);
+  background-size: 64px 64px;
+}
+
+html[data-ef-page="fight"] .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  min-height: 64px;
+  height: auto;
+  padding: .55rem 1rem;
+  border: 0;
+  border-block-end: 1px solid var(--ef-rule-dark);
+  background: rgba(25, 25, 25, .96);
+  color: #fff;
+  backdrop-filter: blur(10px);
+}
+
+html[data-ef-page="fight"] .topbar::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ef-signal) 0 16%, transparent 16%);
+  pointer-events: none;
+}
+
+html[data-ef-page="fight"] .title { gap: .75rem; }
+html[data-ef-page="fight"] .title h1,
+html[data-ef-page="fight"] .topbar h1 {
+  font-family: var(--ef-display);
+  font-size: 1.45rem;
+  font-weight: 900;
+  letter-spacing: -.035em;
+}
+html[data-ef-page="fight"] :is(.title span, .subtitle, .import-note) { color: rgba(255,255,255,.6); font-weight: 500; }
+
+.ef-back {
+  flex: 0 0 auto;
+  min-width: 40px;
+  min-height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ef-rule-dark);
+  background: transparent;
+  color: #fff;
+  text-decoration: none;
+  font-family: var(--ef-mono);
+}
+.ef-back:hover { background: var(--ef-signal); color: var(--ef-ink); }
+
+html[data-ef-page="fight"] .controls { gap: 5px; }
+html[data-ef-page="fight"] :is(.controls button, .decision button, .strategy-buttons button) {
+  position: relative;
+  min-height: 40px;
+  padding: 0 .8rem;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ef-rule);
+  background: var(--ef-white);
+  color: var(--ef-ink);
+  font-weight: 700;
+  box-shadow: none;
+  transition: background var(--ef-direct), color var(--ef-direct), transform var(--ef-direct);
+}
+html[data-ef-page="fight"] .controls button {
+  border-color: rgba(255,255,255,.28);
+  background: transparent;
+  color: #fff;
+}
+html[data-ef-page="fight"] :is(.controls button, .decision button, .strategy-buttons button):hover { border-color: var(--ef-signal); transform: none; }
+html[data-ef-page="fight"] :is(.controls button, .decision button, .strategy-buttons button):active { transform: translateX(3px); }
+html[data-ef-page="fight"] :is(.controls button.primary, .controls button.danger) {
+  border-color: var(--ef-signal);
+  background: transparent;
+  color: #fff;
+  box-shadow: inset 0 -3px var(--ef-signal);
+}
+html[data-ef-page="fight"] .decision button.primary {
+  border-color: var(--ef-signal);
+  background: var(--ef-signal);
+  color: var(--ef-ink);
+}
+html[data-ef-page="fight"] :is(.controls button.active, .speed.active, #pauseBtn.active) {
+  border-color: var(--ef-signal);
+  background: var(--ef-signal);
+  color: var(--ef-ink);
+  box-shadow: inset 4px 0 var(--ef-ink), inset 0 0 0 1px var(--ef-ink);
+}
+html[data-ef-page="fight"] .controls #pauseBtn.active {
+  border-color: var(--ef-signal);
+  background: var(--ef-white);
+  color: var(--ef-ink);
+  box-shadow: inset 4px 0 var(--ef-signal);
+}
+html[data-ef-page="fight"] .strategy-buttons button.active {
+  border-color: var(--ef-ink);
+  background: var(--ef-ink);
+  color: #fff;
+  box-shadow: inset 4px 0 var(--ef-signal);
+}
+html[data-ef-page="fight"] :is(.controls button.active, .strategy-buttons button.active)::before {
+  content: "";
+  width: .42rem;
+  height: .42rem;
+  flex: 0 0 auto;
+  margin-inline-end: .45rem;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+html[data-ef-page="fight"] .strategy-buttons button.active::before { background: var(--ef-signal); }
+html[data-ef-page="fight"] .controls #pauseBtn.active::before { background: var(--ef-signal); }
+html[data-ef-page="fight"] :is(.controls button, .decision button, .strategy-buttons button):disabled {
+  border-color: var(--ef-rule);
+  background: transparent;
+  color: var(--ef-muted);
+  box-shadow: none;
+  opacity: .48;
+}
+
+html[data-ef-page="fight"] .battle { background: transparent; }
+html[data-ef-page="fight"] .divider {
+  position: relative;
+  background: var(--ef-ink);
+}
+html[data-ef-page="fight"] .divider::after {
+  content: "FIELD DIVIDE";
+  position: absolute;
+  z-index: 3;
+  inset: 50% auto auto 50%;
+  padding: .16rem .7rem;
+  background: var(--ef-signal);
+  color: var(--ef-ink);
+  font-family: var(--ef-mono);
+  font-size: .55rem;
+  letter-spacing: .12em;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+html[data-ef-page="fight"] .field {
+  position: relative;
+  background: rgba(242,242,240,.94);
+  animation: ef-field-in var(--ef-reveal) var(--ef-ease) both;
+}
+html[data-ef-page="fight"] .field.enemy { background: rgba(226,226,222,.96); }
+html[data-ef-page="fight"] .field::before {
+  content: attr(aria-label);
+  position: absolute;
+  inset: 6px auto auto 8px;
+  color: #777;
+  font-family: var(--ef-mono);
+  font-size: .5rem;
+  letter-spacing: .12em;
+  pointer-events: none;
+}
+
+@keyframes ef-field-in {
+  from { clip-path: inset(0 100% 0 0); transform: translateX(-10px); }
+  to { clip-path: inset(0); transform: none; }
+}
+
+html[data-ef-page="fight"] :is(.panel, .weapon-effect, .unit-panel, .draw-panel, .chain-panel, .pending-panel, .left-zone, .right-zone) {
+  border-color: var(--ef-rule);
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+html[data-ef-page="fight"] :is(.panel, .weapon-effect, .draw-panel, .chain-panel, .pending-panel) {
+  background: rgba(255,255,255,.88);
+}
+
+html[data-ef-page="fight"] :is(.panel-title, .section-label, .slot-label, .pile-label, .current-label, .weapon-effect-title) {
+  color: var(--ef-ink);
+  font-family: var(--ef-display);
+  font-weight: 900;
+  letter-spacing: -.02em;
+}
+
+html[data-ef-page="fight"] :is(.portrait, .enemy .portrait, .field.player .portrait) {
+  position: relative;
+  border: 0;
+  border-radius: 2px;
+  background: var(--ef-ink) !important;
+  color: #fff;
+  box-shadow: none;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+}
+html[data-ef-page="fight"] .enemy .portrait::after {
+  content: "ENEMY";
+  position: absolute;
+  inset: auto .5rem .4rem auto;
+  color: var(--ef-signal);
+  font-family: var(--ef-mono);
+  font-size: .48rem;
+  letter-spacing: .1em;
+}
+
+html[data-ef-page="fight"] :is(.slot, .chain, .chain-card, .chain-step, .strategy-card, .rule-card, .drawn-area, .current-card-box, .pile) {
+  border-color: var(--ef-rule);
+  border-radius: 2px;
+  background-color: var(--ef-white);
+  box-shadow: none;
+}
+
+html[data-ef-page="fight"] :is(.hpbar, .hp-bar, .timer, .progress, .chain-progress) {
+  border-radius: 0;
+  background: #cececa;
+  border-color: var(--ef-rule);
+}
+html[data-ef-page="fight"] :is(.hpfill, .hp-fill, .timer-fill, .progress > i, .progress i, .chain-progress > i) {
+  background: var(--ef-signal) !important;
+  background-image: none !important;
+}
+
+html[data-ef-page="fight"] :is(.pill, .status-chip, .chip) {
+  border-radius: 2px;
+  border-color: var(--ef-rule);
+  background: #e5e5e1;
+  color: var(--ef-ink);
+}
+
+html[data-ef-page="fight"] :is(.winner, .winner-box, .viewer-panel, .card-viewer-panel, .tooltip, .game-tooltip, .card-preview) {
+  border-radius: 2px;
+  box-shadow: 12px 12px 0 rgba(25,25,25,.18);
+}
+
+/* Level/campaign surfaces. */
+html[data-ef-page="level"] {
+  --bg: var(--ef-paper);
+  --paper: var(--ef-white);
+  --paper-2: #e9e9e5;
+  --paper2: #e9e9e5;
+  --ink: var(--ef-ink);
+  --muted: var(--ef-muted);
+  --line: var(--ef-rule);
+  --green: var(--ef-signal);
+  --green-dark: var(--ef-ink);
+  --green2: var(--ef-ink);
+  --green-soft: #e6e6e1;
+  --greenSoft: #e6e6e1;
+  --red: #d34d4d;
+  --red-soft: #f0dede;
+  --redSoft: #f0dede;
+  --gold: #8b7f00;
+  --gold-soft: #f5f2c6;
+  --goldSoft: #f5f2c6;
+  --blue: #4b626c;
+  --blue-soft: #dce5e7;
+  --blueSoft: #dce5e7;
+  --purple: #6b5a75;
+  --purple-soft: #e8e1eb;
+  --purpleSoft: #e8e1eb;
+  --shadow: none;
+}
+
+html[data-ef-page="level"] :is(html, body) { background: var(--ef-paper); color: var(--ef-ink); font-family: var(--ef-ui); }
+html[data-ef-page="level"] .screen:not(.start),
+html[data-ef-page="level"] #characterScreen {
+  background:
+    linear-gradient(var(--ef-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ef-grid) 1px, transparent 1px),
+    var(--ef-paper);
+  background-size: 72px 72px;
+}
+
+html[data-ef-page="level"] :is(.hero-screen, .start) {
+  position: relative;
+  background:
+    linear-gradient(110deg, rgba(25,25,25,.98) 0 56%, rgba(25,25,25,.78) 72%, rgba(25,25,25,.98) 100%),
+    var(--ef-ink);
+  color: #fff;
+}
+
+html[data-ef-page="level"] :is(.hero-screen, .start)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(90deg, #000, transparent 80%);
+  pointer-events: none;
+}
+
+html[data-ef-page="level"] :is(.hero-screen, .start)::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto auto;
+  width: min(38vw, 560px);
+  height: min(34vh, 300px);
+  background: var(--ef-signal);
+  clip-path: polygon(30% 0, 100% 0, 100% 100%, 0 76%);
+  opacity: .92;
+  pointer-events: none;
+}
+
+html[data-ef-page="level"] :is(.hero-inner, .start-inner) { z-index: 2; }
+html[data-ef-page="level"] .ef-back { width: 40px; justify-self: start; align-self: start; }
+html[data-ef-page="level"] :is(.hero-mark, .kicker, .backlink) {
+  color: var(--ef-signal);
+  font-family: var(--ef-mono);
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+}
+html[data-ef-page="level"] :is(.hero-title, .start h1) {
+  font-family: var(--ef-display);
+  font-weight: 900;
+  line-height: .84;
+  letter-spacing: -.06em;
+}
+html[data-ef-page="level"] :is(.hero-copy, .lead) { color: rgba(255,255,255,.72); line-height: 1.65; }
+html[data-ef-page="level"] :is(.start, .hero-screen, .builder > .panel-head, .side-panel) .keyword-term {
+  color: var(--ef-state);
+}
+
+html[data-ef-page="level"] :is(.primary, .secondary, .ghost, .danger) {
+  min-height: 42px;
+  padding: 0 1rem;
+  border-radius: 2px;
+  font-weight: 700;
+  box-shadow: none;
+  transition: transform var(--ef-direct), background var(--ef-direct), color var(--ef-direct);
+}
+html[data-ef-page="level"] :is(.primary, .danger) { border-color: var(--ef-signal); background: var(--ef-signal); color: var(--ef-ink); }
+html[data-ef-page="level"] .secondary { border-color: var(--ef-ink); background: var(--ef-white); color: var(--ef-ink); }
+html[data-ef-page="level"] .ghost { border-color: var(--ef-rule); background: transparent; color: inherit; }
+html[data-ef-page="level"] :is(.primary, .secondary, .ghost, .danger):hover { transform: translateX(3px); filter: none; }
+html[data-ef-page="level"] :is(.speed-control button.active, .speed-row button.active, .ghost.active) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-color: var(--ef-ink);
+  background: var(--ef-ink);
+  color: #fff;
+  box-shadow: inset 4px 0 var(--ef-signal), 0 0 0 1px var(--ef-signal);
+}
+html[data-ef-page="level"] :is(.speed-control button.active, .speed-row button.active, .ghost.active)::before {
+  content: "";
+  width: .42rem;
+  height: .42rem;
+  flex: 0 0 auto;
+  margin-inline-end: .4rem;
+  background: var(--ef-signal);
+  transform: rotate(45deg);
+}
+html[data-ef-page="level"] button:disabled {
+  box-shadow: none !important;
+  filter: grayscale(.7);
+  opacity: .42;
+}
+
+html[data-ef-page="level"] .topbar {
+  min-height: 64px;
+  border: 0;
+  border-block-end: 3px solid var(--ef-signal);
+  background: rgba(25,25,25,.96);
+  color: #fff;
+  backdrop-filter: blur(10px);
+}
+html[data-ef-page="level"] .brand strong { font-family: var(--ef-display); font-size: 1.4rem; letter-spacing: -.03em; }
+html[data-ef-page="level"] .brand span { color: rgba(255,255,255,.6); }
+html[data-ef-page="level"] .stat {
+  min-height: 36px;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 2px;
+  background: transparent !important;
+  color: rgba(255,255,255,.62) !important;
+}
+html[data-ef-page="level"] .stat b { color: #fff; }
+html[data-ef-page="level"] .stat.gold b { color: var(--ef-signal); }
+
+html[data-ef-page="level"] :is(.section-head h1, .phase-head h1) {
+  font-family: var(--ef-display);
+  font-weight: 900;
+  letter-spacing: -.045em;
+}
+
+html[data-ef-page="level"] :is(.character-card, .catalog-column, .offer, .side-panel, .side-section, .panel, .inventory-block, .chain-plan, .combatant, .battle-center, .weapon-chain, .modal, .result-card, .end-panel) {
+  border-color: var(--ef-rule);
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+html[data-ef-page="level"] :is(.character-card.selected, .system-card.selected, .offer:focus-within, .chain-plan.drag-over) {
+  border-color: var(--ef-ink);
+  box-shadow: inset 5px 0 var(--ef-signal), inset 0 -4px var(--ef-signal);
+}
+html[data-ef-page="level"] :is(.character-card, .system-card) { position: relative; }
+html[data-ef-page="level"] :is(.character-card.selected, .system-card.selected)::after {
+  content: "SELECTED / 已选择";
+  position: absolute;
+  inset: .7rem .7rem auto auto;
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  padding: .3rem .55rem;
+  background: var(--ef-signal);
+  color: var(--ef-ink);
+  font-family: var(--ef-mono);
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+
+html[data-ef-page="level"] :is(.trait, .rarity, .kind, .status-pill, .pending-chip, .odd, .curve) { border-radius: 2px; }
+
+html[data-ef-page="level"] :is(.portrait, .combat-portrait) {
+  border-radius: 2px;
+  background: var(--ef-ink);
+  background-image: none;
+  color: #fff;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+}
+
+html[data-ef-page="level"] :is(.bar, .hpbar, .chain-meter) { border-radius: 0; background: #cfcfca; }
+html[data-ef-page="level"] :is(.bar > div, .hpbar > div, .chain-meter > div) { background: var(--ef-signal) !important; background-image: none !important; }
+
+/* Level 001: one primary character plus two future slots remains truthful but balanced. */
+html[data-ef-page="level"] .character-grid { grid-template-columns: minmax(280px, 1.2fr) repeat(2, minmax(220px, .9fr)); }
+
+/* Level 002: five competing systems use a centered 3+2 route matrix. */
+html[data-ef-page="level"] .system-grid {
+  position: relative;
+  width: min(100%, 1120px);
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin: 2rem auto 0;
+}
+html[data-ef-page="level"] .system-grid .system-card {
+  grid-column: span 2;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.1rem;
+  border: 1px solid var(--ef-rule-dark);
+  border-radius: 2px;
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  box-shadow: none;
+  clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 0 100%);
+}
+html[data-ef-page="level"] .system-grid .system-card:nth-child(4) { grid-column: 2 / span 2; }
+html[data-ef-page="level"] .system-grid .system-card:hover { border-color: var(--ef-signal); background: rgba(255,250,0,.08); }
+html[data-ef-page="level"] .system-grid .system-card.selected {
+  border-color: var(--ef-signal);
+  background: rgba(255,250,0,.12);
+  box-shadow: inset 5px 0 var(--ef-signal), inset 0 -4px var(--ef-signal);
+}
+html[data-ef-page="level"] .system-grid .system-card .curve { margin-top: auto; background: rgba(0,0,0,.35); }
+html[data-ef-page="level"] .start-actions { justify-content: center; }
+
+html[data-ef-page="level"] .shop-layout { gap: 12px; }
+html[data-ef-page="level"] :is(.side-panel, .builder) {
+  border-color: var(--ef-ink);
+  background: var(--ef-ink);
+  color: #fff;
+}
+html[data-ef-page="level"] :is(.side-panel .side-section, .builder .panel-head, .builder .builder-footer) {
+  border-color: var(--ef-rule-dark);
+  background: transparent;
+}
+html[data-ef-page="level"] .builder-body { background: #242424; }
+html[data-ef-page="level"] :is(.builder .inventory-block, .builder .chain-plan) { color: var(--ef-ink); background: var(--ef-white); }
+
+html[data-ef-page="level"] :is(.battle-grid, .battle-chain-wrap) { gap: 8px; }
+html[data-ef-page="level"] :is(.combatant, .battle-center) { background: rgba(255,255,255,.94); }
+html[data-ef-page="level"] :is(.battle-overlay, .overlay) { background: rgba(50,50,47,.72); }
+html[data-ef-page="level"] :is(.toast, .end-screen) { background: var(--ef-ink); color: #fff; }
+html[data-ef-page="level"] :is(.modal, .result-card, .end-panel) { box-shadow: 14px 14px 0 rgba(255,250,0,.65); }
+
+/* Coordinated direct and state motion. */
+html[data-ark-depth="complex"] :is(.system-card, .version-card, .character-card, .offer, .panel) {
+  animation: ef-reveal var(--ef-reveal) var(--ef-ease) both;
+}
+html[data-ark-depth="complex"] :is(.system-card, .version-card, .character-card, .offer, .panel):nth-child(2) { animation-delay: 60ms; }
+html[data-ark-depth="complex"] :is(.system-card, .version-card, .character-card, .offer, .panel):nth-child(3) { animation-delay: 120ms; }
+@keyframes ef-reveal {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 980px) {
+  body.ef-library main { grid-template-columns: 1fr; }
+  body.ef-library :is(.system-card, .version-card, .empty-card) { min-height: 320px; }
+  html[data-ef-page="level"] .system-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 760px; }
+  html[data-ef-page="level"] .system-grid .system-card:nth-child(4) { grid-column: span 2; }
+  html[data-ef-page="level"] .system-grid .system-card:nth-child(5) { grid-column: 2 / span 2; }
+}
+
+@media (max-width: 760px), (orientation: portrait) {
+  body.ef-library { display: block; }
+  .ef-rail {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    width: 100%;
+    height: 56px;
+    flex-direction: row;
+    border: 0;
+    border-block-end: 1px solid var(--ef-rule);
+  }
+  .ef-rail-mark { min-width: 64px; min-height: 56px; border: 0; border-inline-end: 1px solid var(--ef-rule); }
+  .ef-rail-nav { flex: 1; flex-direction: row; }
+  .ef-rail-link { min-width: 0; min-height: 56px; flex: 1; flex-direction: row; padding: .5rem .7rem; writing-mode: horizontal-tb; border: 0; border-inline-end: 1px solid var(--ef-rule); }
+  .ef-rail-link::before { inset: auto 0 0 0; width: auto; height: 4px; transform: scaleX(0); transform-origin: left; }
+  .ef-rail-link:hover::before,
+  .ef-rail-link[aria-current="page"]::before { transform: scaleX(1); }
+  .ef-rail-meta { display: none; }
+  body.ef-library header { min-height: 440px; grid-template-columns: 1fr; align-content: end; gap: 1.5rem; padding: 4rem 1.25rem 2rem; }
+  body.ef-library .page::before { width: 65vw; height: 190px; opacity: .7; }
+  body.ef-library :is(.build-mark, .count) { width: min(100%, 220px); min-height: 100px; box-shadow: 8px 8px 0 var(--ef-signal); }
+  body.ef-library h1 { font-size: clamp(3.4rem, 18vw, 6.2rem); }
+  body.ef-library :is(.system-card, .version-card, .empty-card) { min-height: 360px; padding: 2rem 1.25rem; }
+  body.ef-library h2 { font-size: clamp(2.35rem, 12vw, 4.2rem); }
+
+  html[data-ef-page="fight"] { overflow-x: clip; }
+  html[data-ef-page="fight"] :is(.app, .topbar, .battle, .field) { width: 100%; max-width: 100vw; }
+  html[data-ef-page="fight"] .topbar { position: sticky; align-items: flex-start; flex-direction: column; padding: .65rem; overflow: hidden; }
+  html[data-ef-page="fight"] .title { width: 100%; min-width: 0; flex-wrap: wrap; }
+  html[data-ef-page="fight"] .title .subtitle { min-width: 0; flex: 1 1 160px; }
+  html[data-ef-page="fight"] .controls { width: 100%; max-width: 100%; min-width: 0; justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-block-end: .2rem; }
+  html[data-ef-page="fight"] .controls button { flex: 0 0 auto; }
+  html[data-ef-page="fight"] .divider::after { display: none; }
+
+  html[data-ef-page="level"] :is(.hero-screen, .start)::after { width: 70vw; height: 22vh; opacity: .72; }
+  html[data-ef-page="level"] .topbar { align-items: flex-start; }
+  html[data-ef-page="level"] .run-stats,
+  html[data-ef-page="level"] .stats { width: 100%; justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; }
+  html[data-ef-page="level"] .stat { flex: 0 0 auto; }
+  html[data-ef-page="level"] .character-grid { grid-template-columns: 1fr; }
+  html[data-ef-page="level"] .system-grid { grid-template-columns: 1fr; max-width: 520px; }
+  html[data-ef-page="level"] .system-grid .system-card,
+  html[data-ef-page="level"] .system-grid .system-card:nth-child(4),
+  html[data-ef-page="level"] .system-grid .system-card:nth-child(5) { grid-column: auto; min-height: 0; }
+  html[data-ef-page="level"] .start-actions { align-items: stretch; flex-direction: column; }
+  html[data-ef-page="level"] .start-actions .primary { width: 100%; }
+  html[data-ef-page="level"] :is(.side-panel, .builder) { background: var(--ef-white); color: var(--ef-ink); }
+  html[data-ef-page="level"] .builder-body { background: var(--ef-paper-2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

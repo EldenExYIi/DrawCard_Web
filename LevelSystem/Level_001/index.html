@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-ark-theme="endfield" data-ark-depth="complex" data-ef-page="level">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -515,12 +515,14 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="../../endfield-ui.css">
 </head>
 <body>
   <div class="app">
     <section id="startScreen" class="screen active">
       <div class="hero-screen">
         <div class="hero-inner">
+          <a class="ef-back" href="../index.html" aria-label="返回关卡版本库">‹</a>
           <div class="hero-mark">DRAW · LEVEL 001</div>
           <h1 class="hero-title">商店战斗循环</h1>
           <p class="hero-copy">从空卡组和 40c 开始。购买实体卡牌与武器，调整六槽策略和武器封装顺序，在三次失败前尽可能赢下更多战斗。</p>
@@ -662,11 +664,11 @@
               <h2 id="battleStateLabel">正在构筑牌链</h2>
               <div class="battle-heading-actions">
                 <div class="speed-control" aria-label="战斗速度">
-                  <button data-speed="0.1">0.1x</button>
-                  <button data-speed="0.5">0.5x</button>
-                  <button data-speed="1" class="active">1x</button>
-                  <button data-speed="2">2x</button>
-                  <button data-speed="4">4x</button>
+                  <button data-speed="0.1" aria-pressed="false">0.1x</button>
+                  <button data-speed="0.5" aria-pressed="false">0.5x</button>
+                  <button data-speed="1" class="active" aria-pressed="true">1x</button>
+                  <button data-speed="2" aria-pressed="false">2x</button>
+                  <button data-speed="4" aria-pressed="false">4x</button>
                 </div>
                 <button id="exitBattleBtn" class="ghost exit-battle-button" type="button">退出战斗</button>
               </div>
@@ -1322,7 +1324,11 @@
       };
       state.exitGold = state.gold;
       state.speed = 1;
-      document.querySelectorAll("[data-speed]").forEach(button => button.classList.toggle("active", Number(button.dataset.speed) === 1));
+      document.querySelectorAll("[data-speed]").forEach(button => {
+        const active = Number(button.dataset.speed) === 1;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
       logBattleV2("模拟战斗开始：目标为无限血木人，木人不会攻击，本场不结算奖励、胜负或 Build 数据。");
       document.querySelector("#resultOverlay").classList.remove("open");
       renderBattleV2();
@@ -1345,7 +1351,11 @@
       };
       if (!replay) state.exitGold = state.gold;
       state.speed = 1;
-      document.querySelectorAll("[data-speed]").forEach(button => button.classList.toggle("active", Number(button.dataset.speed) === 1));
+      document.querySelectorAll("[data-speed]").forEach(button => {
+        const active = Number(button.dataset.speed) === 1;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
       logBattleV2(replay
         ? `开始回放第 ${state.battleNumber} 场战斗。`
         : `第 ${state.battleNumber} 场开始：玩家 Build 随机匹配第 ${replayData.databaseRound} 轮模拟数据池。`);
@@ -1884,7 +1894,11 @@
     document.querySelector("#exitBattleBtn").addEventListener("click", exitSimulationBattleV2);
     document.querySelectorAll("[data-speed]").forEach(button => button.addEventListener("click", () => {
       state.speed = Number(button.dataset.speed);
-      document.querySelectorAll("[data-speed]").forEach(item => item.classList.toggle("active", item === button));
+      document.querySelectorAll("[data-speed]").forEach(item => {
+        const active = item === button;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-pressed", String(active));
+      });
     }));
     document.querySelector("#replayBtn").addEventListener("click", replayLastBattle);
     document.querySelector("#continueBtn").addEventListener("click", continueAfterBattleV2);
